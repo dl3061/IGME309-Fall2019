@@ -10,7 +10,16 @@ void AppClass::Run(void)
 	Init();
 	
 	//Set the background color
-	glClearColor(0.392f, 0.584f, 0.929f, 1.0f);
+	//glClearColor(0.392f, 0.584f, 0.929f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+	// instructions
+	std::cout << "\nUse the following keys to swap colors:\n";
+	std::cout << "\t (1) Red\n";
+	std::cout << "\t (2) Green\n";
+	std::cout << "\t (3) Blue\n";
+	std::cout << "\t (0) Pretty Colors\n";
+	std::cout << "\t (Spacebar) Complimentary of Current Color \n";
 
 	// run the main loop
 	while (m_bRunning)
@@ -67,7 +76,7 @@ void AppClass::InitOpenGL(void)
 }
 void AppClass::InitShaders(void)
 {
-	m_uShaderProgramID = LoadShaders("Shaders//BasicColor.vs", "Shaders//BasicColor.fs");
+	m_uShaderProgramID = LoadShaders("Shaders//BasicColor.vs", "Shaders//ComplimentaryColor.fs");
 	glUseProgram(m_uShaderProgramID);
 }
 void AppClass::InitVariables(void)
@@ -108,13 +117,27 @@ void AppClass::ProcessKeyboard(sf::Event a_event)
 	if (a_event.key.code == sf::Keyboard::Key::Escape)//Event says I pressed the Escape key
 		m_bRunning = false;
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1)) //I am currently pressing the Num1 (not the same as above)
+	{
 		m_v3Color = glm::vec3(1.0f, 0.0f, 0.0f);
+		m_bEnableCompliemenary = false;
+	}
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2))
+	{
 		m_v3Color = glm::vec3(0.0f, 1.0f, 0.0f);
+		m_bEnableCompliemenary = false;
+	}
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num3))
+	{
 		m_v3Color = glm::vec3(0.0f, 0.0f, 1.0f);
+		m_bEnableCompliemenary = false;
+	}
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num0))
+	{
 		m_v3Color = glm::vec3(-1.0f, -1.0f, -1.0f);
+		m_bEnableCompliemenary = false;
+	}
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+		m_bEnableCompliemenary = !m_bEnableCompliemenary;
 }
 void AppClass::Display(void)
 {
@@ -122,8 +145,13 @@ void AppClass::Display(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//read uniforms and send values
+	// SolidColor uniform
 	GLuint SolidColor = glGetUniformLocation(m_uShaderProgramID, "SolidColor");
 	glUniform3f(SolidColor, m_v3Color.r, m_v3Color.g, m_v3Color.b);
+
+	// Enable compliementary color mode uniform
+	GLuint SwapToComplimentary = glGetUniformLocation(m_uShaderProgramID, "SwapToComplimentary");
+	glUniform1i(SwapToComplimentary, m_bEnableCompliemenary);
 
 	//draw content
 	glDrawArrays(GL_TRIANGLES, 0, 3);
