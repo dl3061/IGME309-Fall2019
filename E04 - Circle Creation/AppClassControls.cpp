@@ -130,6 +130,30 @@ void Application::ProcessKeyReleased(sf::Event a_event)
 			}
 		}
 		break;
+	case sf::Keyboard::Return:
+		// Toggle m_bInputtingSides
+		m_bInputtingSides = !m_bInputtingSides;
+
+		if (m_bInputtingSides)
+		{
+			// If toggled on, reset m_circleSides
+			m_circleSides = 0;
+		}
+		break;
+	}
+
+	// Number input
+	if (a_event.key.code >= sf::Keyboard::Num0
+		&& a_event.key.code <= sf::Keyboard::Num9)
+	{
+		int numPressed = a_event.key.code - sf::Keyboard::Num0;
+		m_circleSides = m_circleSides * 10 + numPressed;
+	}
+	else if (a_event.key.code >= sf::Keyboard::Numpad0
+		&& a_event.key.code <= sf::Keyboard::Numpad9)
+	{
+		int numPressed = a_event.key.code - sf::Keyboard::Numpad0;
+		m_circleSides = m_circleSides * 10 + numPressed;
 	}
 
 	//gui

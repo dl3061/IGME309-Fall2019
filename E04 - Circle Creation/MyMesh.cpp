@@ -1,4 +1,5 @@
 #include "MyMesh.h"
+
 void MyMesh::GenerateCircle(float a_fRadius, int a_nSubdivisions, vector3 a_v3Color)
 {
 	Release();
@@ -9,6 +10,7 @@ void MyMesh::GenerateCircle(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 
 	if (a_nSubdivisions < 3)
 		a_nSubdivisions = 3;
+
 	if (a_nSubdivisions > 360)
 		a_nSubdivisions = 360;
 
@@ -17,10 +19,63 @@ void MyMesh::GenerateCircle(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 		then call the AddTri function to generate a_nSubdivision number of faces
 	*/
 
+	float degreesPerDivision = 360.0 / a_nSubdivisions;
+
+	// Tri-s are counter-clockwise.
+	// Draw circle as a unit circle, starting at 0-degree, going counter clockwise.
+		// First point is at nth * degreesPerDivision degrees along the circle
+		// Second point is at (nth + 1) * degreesPerDivision degrees along the circle
+		// Third point is at the center
+
+	vector3 center;
+	center.x = 0;
+	center.y = 0;
+	center.z = 0;
+
+	vector3 outerPoint;
+	vector3 outerPointNext;
+
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		float currDegrees = degreesPerDivision * i;
+		float nextDegrees = degreesPerDivision * (i+1);
+
+		// "Calc" outerPoint
+			// outerPoint starts at zero for the first division.
+			// It then is always the previous divisions outerPointNext, so don't recalc. 
+		if (i == 0)
+		{
+			outerPoint.x = a_fRadius;
+			outerPoint.y = 0;
+		}
+		else
+		{
+			outerPoint = outerPointNext;
+		}
+
+		// Calc outerPointNext (the next point in the triangle, counter-clockwise, or a few degrees along the unit circle.)
+			// If it's the last division, it should go back to 360degrees or 0 degrees.
+		if (i == a_nSubdivisions - 1)
+		{
+			// Rounding errors can leave a degree or few sliced out of the circle.
+			//	Just snap to the 0-degrees on the unit circle. 
+			outerPointNext.x = a_fRadius;
+			outerPointNext.y = 0;
+		}
+		else
+		{
+			outerPointNext.x = a_fRadius * cos(nextDegrees * (PI / 180));
+			outerPointNext.y = a_fRadius * sin(nextDegrees * (PI / 180));
+		}
+
+		AddTri(outerPoint, outerPointNext, center);
+	}
+
 	// Adding information about color
 	CompleteMesh(a_v3Color);
 	CompileOpenGL3X();
 }
+
 void MyMesh::Init(void)
 {
 	m_bBinded = false;
@@ -31,6 +86,7 @@ void MyMesh::Init(void)
 
 	m_pShaderMngr = ShaderManager::GetInstance();
 }
+
 void MyMesh::Release(void)
 {
 	m_pShaderMngr = nullptr;
@@ -45,10 +101,12 @@ void MyMesh::Release(void)
 	m_lVertexPos.clear();
 	m_lVertexCol.clear();
 }
+
 MyMesh::MyMesh()
 {
 	Init();
 }
+
 MyMesh::~MyMesh() { Release(); }
 MyMesh::MyMesh(MyMesh& other)
 {
@@ -61,6 +119,7 @@ MyMesh::MyMesh(MyMesh& other)
 	m_VAO = other.m_VAO;
 	m_VBO = other.m_VBO;
 }
+
 MyMesh& MyMesh::operator=(MyMesh& other)
 {
 	if (this != &other)
@@ -72,6 +131,7 @@ MyMesh& MyMesh::operator=(MyMesh& other)
 	}
 	return *this;
 }
+
 void MyMesh::Swap(MyMesh& other)
 {
 	std::swap(m_bBinded, other.m_bBinded);
@@ -86,6 +146,7 @@ void MyMesh::Swap(MyMesh& other)
 
 	std::swap(m_pShaderMngr, other.m_pShaderMngr);
 }
+
 void MyMesh::CompleteMesh(vector3 a_v3Color)
 {
 	uint uColorCount = m_lVertexCol.size();
@@ -94,15 +155,18 @@ void MyMesh::CompleteMesh(vector3 a_v3Color)
 		m_lVertexCol.push_back(a_v3Color);
 	}
 }
+
 void MyMesh::AddVertexPosition(vector3 a_v3Input)
 {
 	m_lVertexPos.push_back(a_v3Input);
 	m_uVertexCount = m_lVertexPos.size();
 }
+
 void MyMesh::AddVertexColor(vector3 a_v3Input)
 {
 	m_lVertexCol.push_back(a_v3Input);
 }
+
 void MyMesh::CompileOpenGL3X(void)
 {
 	if (m_bBinded)
@@ -139,6 +203,7 @@ void MyMesh::CompileOpenGL3X(void)
 
 	glBindVertexArray(0); // Unbind VAO
 }
+
 void MyMesh::Render(matrix4 a_mProjection, matrix4 a_mView, matrix4 a_mModel)
 {
 	// Use the buffer and shader
@@ -171,6 +236,7 @@ void MyMesh::Render(matrix4 a_mProjection, matrix4 a_mView, matrix4 a_mModel)
 
 	glBindVertexArray(0);// Unbind VAO so it does not get in the way of other objects
 }
+
 void MyMesh::AddTri(vector3 a_vBottomLeft, vector3 a_vBottomRight, vector3 a_vTopLeft)
 {
 	//C
@@ -181,6 +247,7 @@ void MyMesh::AddTri(vector3 a_vBottomLeft, vector3 a_vBottomRight, vector3 a_vTo
 	AddVertexPosition(a_vBottomRight);
 	AddVertexPosition(a_vTopLeft);
 }
+
 void MyMesh::AddQuad(vector3 a_vBottomLeft, vector3 a_vBottomRight, vector3 a_vTopLeft, vector3 a_vTopRight)
 {
 	//C--D
@@ -195,6 +262,7 @@ void MyMesh::AddQuad(vector3 a_vBottomLeft, vector3 a_vBottomRight, vector3 a_vT
 	AddVertexPosition(a_vBottomRight);
 	AddVertexPosition(a_vTopRight);
 }
+
 void MyMesh::GenerateCube(float a_fSize, vector3 a_v3Color)
 {
 	if (a_fSize < 0.01f)
@@ -240,6 +308,7 @@ void MyMesh::GenerateCube(float a_fSize, vector3 a_v3Color)
 	CompleteMesh(a_v3Color);
 	CompileOpenGL3X();
 }
+
 void MyMesh::GenerateCuboid(vector3 a_v3Dimensions, vector3 a_v3Color)
 {
 	Release();
@@ -338,6 +407,7 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	CompleteMesh(a_v3Color);
 	CompileOpenGL3X();
 }
+
 void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fHeight, int a_nSubdivisions, vector3 a_v3Color)
 {
 	if (a_fOuterRadius < 0.01f)
@@ -372,6 +442,7 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	CompleteMesh(a_v3Color);
 	CompileOpenGL3X();
 }
+
 void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSubdivisionsA, int a_nSubdivisionsB, vector3 a_v3Color)
 {
 	if (a_fOuterRadius < 0.01f)
@@ -408,6 +479,7 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 	CompleteMesh(a_v3Color);
 	CompileOpenGL3X();
 }
+
 void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Color)
 {
 	if (a_fRadius < 0.01f)

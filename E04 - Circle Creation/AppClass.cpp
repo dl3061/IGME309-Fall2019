@@ -1,10 +1,13 @@
 #include "AppClass.h"
+
 void Application::InitVariables(void)
 {
 	//Make MyMesh object
 	m_pMesh = new MyMesh();
+
 	//Generate a circle
 	m_pMesh->GenerateCircle(2.0f, 5, C_RED);
+	
 }
 void Application::Update(void)
 {
@@ -16,6 +19,10 @@ void Application::Update(void)
 
 	//Is the first person camera active?
 	CameraRotation();
+
+	// Update the circle (if the user is not currently inputting a value)
+	if (!m_bInputtingSides)
+		m_pMesh->GenerateCircle(2.0f, m_circleSides, C_RED);
 }
 void Application::Display(void)
 {

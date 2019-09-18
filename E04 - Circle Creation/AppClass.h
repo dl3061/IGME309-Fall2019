@@ -39,6 +39,9 @@ private:
 	ControllerInput* m_pController[8]; //Controller
 	uint m_uActCont = 0; //Active Controller of the Application
 
+	bool m_bInputtingSides = false;	// Did the user press enter?
+	int m_circleSides = 3;
+
 public:
 #pragma region Constructor / Run / Destructor
 	/*

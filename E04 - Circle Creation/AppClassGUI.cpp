@@ -37,6 +37,10 @@ void Application::DrawGUI(void)
 			ImGui::Text("	 F2: Orthographic X\n");
 			ImGui::Text("	 F3: Orthographic Y\n");
 			ImGui::Text("	 F4: Orthographic Z\n");
+			ImGui::Text("	 \n");
+			ImGui::Text("	 To change the number of sides, press Enter/Return, input a number, then press Enter/Return again.\n");
+			ImGui::Text("	 \tNumber of Sides: %d%s\n", m_circleSides, 
+				m_bInputtingSides ? "*" : "");
 		}
 		ImGui::End();
 	}
