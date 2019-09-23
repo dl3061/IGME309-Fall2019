@@ -12,12 +12,18 @@ Date: 2017/05
 
 #include "MyMesh.h"
 
+#include <vector>
+
+#include "SpaceInvader.h"
+
+
 class Application
 {
-	MyMesh* m_pMesh = nullptr;
-	MyMesh* m_pMesh1 = nullptr;
+	SpaceInvader* m_SpaceInvader = nullptr;
+	const int m_SpaceInvaderUnits = 46;
 
-	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
+	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu		\
+							David Lin - dl3061@rit.edu";
 private:
 	static ImGuiObject gui; //GUI object
 

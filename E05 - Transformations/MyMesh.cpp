@@ -149,12 +149,18 @@ void MyMesh::Render(matrix4 a_mProjection, matrix4 a_mView, matrix4 a_mModel)
 
 	glBindVertexArray(0);// Unbind VAO so it does not get in the way of other objects
 }
+
+
+
+
+
+
 void MyMesh::AddTri(vector3 a_vBottomLeft, vector3 a_vBottomRight, vector3 a_vTopLeft)
 {
 	//C
 	//| \
 		//A--B
-//This will make the triangle A->B->C 
+	//This will make the triangle A->B->C 
 	AddVertexPosition(a_vBottomLeft);
 	AddVertexPosition(a_vBottomRight);
 	AddVertexPosition(a_vTopLeft);
@@ -165,15 +171,11 @@ void MyMesh::AddQuad(vector3 a_vBottomLeft, vector3 a_vBottomRight, vector3 a_vT
 	//|  |
 	//A--B
 	//This will make the triangle A->B->C and then the triangle C->B->D
-	AddVertexPosition(a_vBottomLeft);
-	AddVertexPosition(a_vBottomRight);
-	AddVertexPosition(a_vTopLeft);
+	AddTri(a_vBottomLeft, a_vBottomRight, a_vTopLeft);
 
-	AddVertexPosition(a_vTopLeft);
-	AddVertexPosition(a_vBottomRight);
-	AddVertexPosition(a_vTopRight);
+	AddTri(a_vTopLeft, a_vBottomRight, a_vTopRight);
 }
-void MyMesh::GenerateCube(float a_fSize, vector3 a_v3Color)
+void MyMesh::GenerateCube(float a_fSize, vector3 a_offset, vector3 a_v3Color)
 {
 	if (a_fSize < 0.01f)
 		a_fSize = 0.01f;
@@ -186,6 +188,7 @@ void MyMesh::GenerateCube(float a_fSize, vector3 a_v3Color)
 	//|  |
 	//0--1
 
+	// Declare each of the points
 	vector3 point0(-fValue, -fValue, fValue); //0
 	vector3 point1(fValue, -fValue, fValue); //1
 	vector3 point2(fValue, fValue, fValue); //2
@@ -195,8 +198,18 @@ void MyMesh::GenerateCube(float a_fSize, vector3 a_v3Color)
 	vector3 point5(fValue, -fValue, -fValue); //5
 	vector3 point6(fValue, fValue, -fValue); //6
 	vector3 point7(-fValue, fValue, -fValue); //7
+	
+	// Apply an "offset", which would be the center of the cube. Default 0.
+	point0 = point0 + a_offset;
+	point1 = point1 + a_offset;
+	point2 = point2 + a_offset;
+	point3 = point3 + a_offset;
+	point4 = point4 + a_offset;
+	point5 = point5 + a_offset;
+	point6 = point6 + a_offset;
+	point7 = point7 + a_offset;
 
-											  //F
+	//F
 	AddQuad(point0, point1, point3, point2);
 
 	//B
@@ -254,161 +267,6 @@ void MyMesh::GenerateCuboid(vector3 a_v3Dimensions, vector3 a_v3Color)
 
 	//D
 	AddQuad(point4, point5, point0, point1);
-
-	// Adding information about color
-	CompleteMesh(a_v3Color);
-	CompileOpenGL3X();
-}
-void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions, vector3 a_v3Color)
-{
-	if (a_fRadius < 0.01f)
-		a_fRadius = 0.01f;
-
-	if (a_fHeight < 0.01f)
-		a_fHeight = 0.01f;
-
-	if (a_nSubdivisions < 3)
-		a_nSubdivisions = 3;
-	if (a_nSubdivisions > 360)
-		a_nSubdivisions = 360;
-
-	Release();
-	Init();
-
-	// Replace this with your code
-	Mesh* pMesh = new Mesh();
-	pMesh->GenerateCone(a_fRadius, a_fHeight, a_nSubdivisions, a_v3Color);
-	m_lVertexPos = pMesh->GetVertexList();
-	m_uVertexCount = m_lVertexPos.size();
-	SafeDelete(pMesh);
-	// -------------------------------
-
-	// Adding information about color
-	CompleteMesh(a_v3Color);
-	CompileOpenGL3X();
-}
-void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisions, vector3 a_v3Color)
-{
-	if (a_fRadius < 0.01f)
-		a_fRadius = 0.01f;
-
-	if (a_fHeight < 0.01f)
-		a_fHeight = 0.01f;
-
-	if (a_nSubdivisions < 3)
-		a_nSubdivisions = 3;
-	if (a_nSubdivisions > 360)
-		a_nSubdivisions = 360;
-
-	Release();
-	Init();
-
-	// Replace this with your code
-	Mesh* pMesh = new Mesh();
-	pMesh->GenerateCylinder(a_fRadius, a_fHeight, a_nSubdivisions, a_v3Color);
-	m_lVertexPos = pMesh->GetVertexList();
-	m_uVertexCount = m_lVertexPos.size();
-	SafeDelete(pMesh);
-	// -------------------------------
-
-	// Adding information about color
-	CompleteMesh(a_v3Color);
-	CompileOpenGL3X();
-}
-void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fHeight, int a_nSubdivisions, vector3 a_v3Color)
-{
-	if (a_fOuterRadius < 0.01f)
-		a_fOuterRadius = 0.01f;
-
-	if (a_fInnerRadius < 0.005f)
-		a_fInnerRadius = 0.005f;
-
-	if (a_fInnerRadius > a_fOuterRadius)
-		std::swap(a_fInnerRadius, a_fOuterRadius);
-
-	if (a_fHeight < 0.01f)
-		a_fHeight = 0.01f;
-
-	if (a_nSubdivisions < 3)
-		a_nSubdivisions = 3;
-	if (a_nSubdivisions > 360)
-		a_nSubdivisions = 360;
-
-	Release();
-	Init();
-
-	// Replace this with your code
-	Mesh* pMesh = new Mesh();
-	pMesh->GenerateTube(a_fOuterRadius, a_fInnerRadius, a_fHeight, a_nSubdivisions, a_v3Color);
-	m_lVertexPos = pMesh->GetVertexList();
-	m_uVertexCount = m_lVertexPos.size();
-	SafeDelete(pMesh);
-	// -------------------------------
-
-	// Adding information about color
-	CompleteMesh(a_v3Color);
-	CompileOpenGL3X();
-}
-void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSubdivisionsA, int a_nSubdivisionsB, vector3 a_v3Color)
-{
-	if (a_fOuterRadius < 0.01f)
-		a_fOuterRadius = 0.01f;
-
-	if (a_fInnerRadius < 0.005f)
-		a_fInnerRadius = 0.005f;
-
-	if (a_fInnerRadius > a_fOuterRadius)
-		std::swap(a_fInnerRadius, a_fOuterRadius);
-
-	if (a_nSubdivisionsA < 3)
-		a_nSubdivisionsA = 3;
-	if (a_nSubdivisionsA > 360)
-		a_nSubdivisionsA = 360;
-
-	if (a_nSubdivisionsB < 3)
-		a_nSubdivisionsB = 3;
-	if (a_nSubdivisionsB > 360)
-		a_nSubdivisionsB = 360;
-
-	Release();
-	Init();
-
-	// Replace this with your code
-	Mesh* pMesh = new Mesh();
-	pMesh->GenerateTorus(a_fOuterRadius, a_fInnerRadius, a_nSubdivisionsA, a_nSubdivisionsB, a_v3Color);
-	m_lVertexPos = pMesh->GetVertexList();
-	m_uVertexCount = m_lVertexPos.size();
-	SafeDelete(pMesh);
-	// -------------------------------
-
-	// Adding information about color
-	CompleteMesh(a_v3Color);
-	CompileOpenGL3X();
-}
-void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Color)
-{
-	if (a_fRadius < 0.01f)
-		a_fRadius = 0.01f;
-
-	//Sets minimum and maximum of subdivisions
-	if (a_nSubdivisions < 1)
-	{
-		GenerateCube(a_fRadius * 2.0f, a_v3Color);
-		return;
-	}
-	if (a_nSubdivisions > 6)
-		a_nSubdivisions = 6;
-
-	Release();
-	Init();
-
-	// Replace this with your code
-	Mesh* pMesh = new Mesh();
-	pMesh->GenerateSphere(a_fRadius, a_nSubdivisions, a_v3Color);
-	m_lVertexPos = pMesh->GetVertexList();
-	m_uVertexCount = m_lVertexPos.size();
-	SafeDelete(pMesh);
-	// -------------------------------
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);

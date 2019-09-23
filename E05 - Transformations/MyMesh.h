@@ -135,9 +135,11 @@ public:
 	ARGUMENTS:
 	-	float a_fSize -> Size of each side
 	-	vector3 a_v3Color -> Color of the mesh
+	-	vector3 offset -> offset for the points
 	OUTPUT: ---
 	*/
-	void GenerateCube(float a_fSize, vector3 a_v3Color = C_WHITE);
+	void GenerateCube(float a_fSize, vector3 a_offset = vector3(0, 0, 0), vector3 a_v3Color = C_WHITE);
+
 	/*
 	USAGE: Generates a cuboid
 	ARGUMENTS:
@@ -146,57 +148,6 @@ public:
 	OUTPUT: ---
 	*/
 	void GenerateCuboid(vector3 a_v3Dimensions, vector3 a_v3Color = C_WHITE);
-	/*
-	USAGE: Generates a cone mesh
-	ARGUMENTS:
-	-	float a_fRadius -> radius
-	-	float a_fHeight -> how tall is the mesh
-	-	int a_nSubdivisions -> divisions of the cap
-	-	vector3 a_v3Color -> Color of the mesh
-	OUTPUT: ---
-	*/
-	void GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions, vector3 a_v3Color = C_WHITE);
-	/*
-	USAGE: Generates a cylinder mesh
-	ARGUMENTS:
-	-	float a_fRadius -> radius
-	-	float a_fHeight -> how tall is the mesh
-	-	int a_nSubdivisions -> divisions on the cap
-	-	vector3 a_v3Color -> Color of the mesh
-	OUTPUT: ---
-	*/
-	void GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisions, vector3 a_v3Color = C_WHITE);
-	/*
-	USAGE: Generates a tube mesh
-	ARGUMENTS:
-	-	float a_fOuterRadius -> outer radius
-	-	float a_fInnerRadius -> inner radius
-	-	float a_fHeight -> how tall is the mesh
-	-	int a_nSubdivisions -> divisions on the cap
-	-	a_v3Color -> Color of the mesh
-	OUTPUT: ---
-	*/
-	void GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fHeight, int a_nSubdivisions, vector3 a_v3Color = C_WHITE);
-	/*
-	USAGE: Generates a torus mesh
-	ARGUMENTS:
-	-	float a_fOuterRadius -> Outer radius
-	-	float a_fInnerRadius -> Inner Radius
-	-	int a_nSubdivisionHeight -> divisions vertical
-	-	int a_nSubdivisionAxis -> divisions along the roundness of the mesh
-	-	a_v3Color -> Color of the mesh
-	OUTPUT: ---
-	*/
-	void GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSubdivisionHeight, int a_nSubdivisionAxis, vector3 a_v3Color = C_WHITE);
-	/*
-	USAGE: Generates a Sphere mesh
-	ARGUMENTS:
-	-	float a_fRadius -> radius of the sphere
-	-	int a_nSubdivisions -> Number of divisions, not a lot of difference in shapes larger than 3 subd
-	-	a_v3Color -> Color of the mesh
-	OUTPUT: ---
-	*/
-	void GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Color = C_WHITE);
 #pragma endregion
 };
 
