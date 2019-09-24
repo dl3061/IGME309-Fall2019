@@ -16,10 +16,17 @@ Date: 2017/05
 
 #include "SpaceInvader.h"
 
+#define INVADER_ARMY_POS_INIT_X		(-7.5f)
+#define INVADER_ARMY_POS_INIT_Y		(8.0f)
+#define INVADER_ARMY_POS_SEP_X		(1.24f)
+#define INVADER_ARMY_POS_SEP_Y		(1.5f)
+
 
 class Application
 {
 	SpaceInvader* m_SpaceInvader = nullptr;
+	std::vector<SpaceInvader*> m_SpaceInvaderArmy;
+
 	const int m_SpaceInvaderUnits = 46;
 
 	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu		\

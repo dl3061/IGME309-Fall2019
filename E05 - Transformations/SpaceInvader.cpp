@@ -5,7 +5,11 @@ SpaceInvader::SpaceInvader(float sizePerBlock, vector3 baseCoordinate)
 	mesh = std::vector<MyMesh*>();
 
 	this->sizePerBlock = sizePerBlock;
+	this->scale = 1.0f;
 	this->basePosition = baseCoordinate;
+	
+	this->elapsedTime = 0;
+	this->motion = Motion::None;
 
 	DrawSpaceInvader();
 }
@@ -24,7 +28,10 @@ SpaceInvader::SpaceInvader(SpaceInvader& other)
 	this->mesh = other.mesh;
 
 	this->sizePerBlock = other.sizePerBlock;
+	this->scale = other.scale;
 	this->basePosition = other.basePosition;
+	this->elapsedTime = other.elapsedTime;
+	this->motion = other.motion;
 }
 
 SpaceInvader& SpaceInvader::operator=(SpaceInvader& other)
@@ -35,7 +42,10 @@ SpaceInvader& SpaceInvader::operator=(SpaceInvader& other)
 		this->mesh = other.mesh;
 
 		this->sizePerBlock = other.sizePerBlock;
+		this->scale = other.scale;
 		this->basePosition = other.basePosition;
+		this->elapsedTime = other.elapsedTime;
+		this->motion = other.motion;
 	}
 	return *this;
 }
@@ -45,15 +55,100 @@ std::vector<MyMesh*> SpaceInvader::GetMesh()
 	return mesh;
 }
 
-/*
-void SpaceInvader::Render()
+void SpaceInvader::SetMotion(Motion motion)
 {
-	for (int i = 0; i < mesh.size; i++)
+	elapsedTime = 0;
+
+	this->motion = motion;
+}
+
+void SpaceInvader::SetScale(float scale)
+{
+	this->scale = scale;
+}
+
+
+void SpaceInvader::Render(matrix4 projMatrix, matrix4 viewMatrix, matrix4 arcball)
+{
+	// Local copy of view and proj matrix and arcball, to be modified for transformations.
+	matrix4 lViewMatrix = viewMatrix;
+	matrix4 lProjMatrix = projMatrix;
+	matrix4 lArcball = arcball;
+
+	matrix4 identity = matrix4(1.0f);
+	
+	//	the scale will always be constant for this exercise.
+	matrix4 m4Scale = glm::scale(identity, vector3(scale, scale, scale));	
+
+	// Apply motion
+	if (this->motion == Motion::Sine)
 	{
-		mesh[i]->Render(m_pCameraMngr->GetProjectionMatrix(), m_pCameraMngr->GetViewMatrix(), ToMatrix4(m_qArcBall));
+		matrix4 m4Translate = glm::translate(identity, vector3(elapsedTime, sin(elapsedTime) * GetHeight(), 0.0f));
+
+		lArcball = lArcball + m4Scale * m4Translate;
+	}
+	else if (this->motion == Motion::Classic)
+	{
+		float maxWidth = GetWidth() * 3;
+		float rowHeight = GetHeight();
+		int row = ((int)(elapsedTime / (maxWidth + rowHeight)));
+
+		float progIntoRow = fmod(elapsedTime, (maxWidth + rowHeight));
+
+		// xDisplacement
+			// from 0 to maxWidth, move
+			// from maxWidth to maxWidth+rowHeight, wait
+
+		float x = 0;
+		if (progIntoRow <= maxWidth)
+		{
+			// If moving
+				// If on an even row, x = elapsed time  from 0 to maxWidth
+				// If on an odd row, x = elapsed time from maxWidth down to 0
+				// progress along the path is represented in progIntoRow
+
+			if (row % 2)
+				x = maxWidth - progIntoRow;
+			else
+				x = progIntoRow;
+		}
+		else
+		{
+			// If not moving, snap to left edge or right edge
+			if (row % 2)
+				x = 0.0f;
+			else
+				x = maxWidth;
+		}
+
+		// yDisplacement
+			// from 0 to maxWidth, wait
+			// from maxWidth to maxWidth+rowHeight, move
+
+		float y = 0;
+		if (progIntoRow <= maxWidth)
+		{
+			y = rowHeight * (-row);
+		}
+		else
+		{
+			y = rowHeight * (-row) - (progIntoRow - maxWidth);
+		}
+
+		matrix4 m4Translate = glm::translate(identity, vector3(x, y, 0.0f));
+
+		lArcball = lArcball + m4Scale * m4Translate;
+	}
+	
+	// Pass time
+	elapsedTime += 0.1f;
+
+	// Render
+	for (int i = 0; i < mesh.size(); i++)
+	{
+		mesh[i]->Render(lProjMatrix, lViewMatrix, lArcball);
 	}
 }
-*/
 
 void SpaceInvader::DrawSpaceInvader()
 {
@@ -109,10 +204,6 @@ void SpaceInvader::FillMeshRow(int row, int startIndex, int endIndex)
 		vector3 pos = basePosition;
 		pos.x += i * sizePerBlock;
 		pos.y += row * sizePerBlock;
-		std::cout << "Drawing Block at (" << pos.x << ", " << pos.y << ")\n";
-
-		std::cout << "SizePerBlock " << sizePerBlock << "\n";
-
 
 		MyMesh* block = new MyMesh();
 		block->GenerateCube(sizePerBlock, pos, blockColor);
@@ -120,3 +211,5 @@ void SpaceInvader::FillMeshRow(int row, int startIndex, int endIndex)
 		mesh.push_back(block);
 	}
 }
+
+

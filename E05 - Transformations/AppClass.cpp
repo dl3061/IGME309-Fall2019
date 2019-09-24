@@ -1,8 +1,28 @@
 #include "AppClass.h"
 void Application::InitVariables(void)
 {
-	//Make the array of meshes for the Space Invader
-	m_SpaceInvader = new SpaceInvader(1.0, C_WHITE);
+	//Make the Space Invader
+	m_SpaceInvader = new SpaceInvader(1.0f, vector3(-1.0, 0, 0));
+	m_SpaceInvader->SetMotion(Motion::Sine);
+
+	// Make an army
+	m_SpaceInvaderArmy = std::vector<SpaceInvader*>();
+	for (int row = 0; row <= 5; row++)
+	{
+		float invaderSize = 0.1f; // +0.01f * row;
+		float invaderScale = 0.5f + 0.1f * row;
+		float invaderPosY = INVADER_ARMY_POS_INIT_Y - INVADER_ARMY_POS_SEP_Y * row;
+
+		for (int col = 0; col <= 11; col++)
+		{
+			float invaderPosX = INVADER_ARMY_POS_INIT_X + INVADER_ARMY_POS_SEP_X * col;
+			SpaceInvader* invader = new SpaceInvader(invaderSize, vector3(invaderPosX, invaderPosY, 0.0f));
+			invader->SetMotion(Motion::Classic);
+			invader->SetScale(invaderScale);
+
+			m_SpaceInvaderArmy.push_back(invader);
+		}
+	}
 
 }
 void Application::Update(void)
@@ -21,13 +41,18 @@ void Application::Display(void)
 	// Clear the screen
 	ClearScreen();
 
-	for (int i = 0; i < m_SpaceInvader->GetMesh().size(); i++)
-	{
-		m_SpaceInvader->GetMesh()[i]->Render(m_pCameraMngr->GetProjectionMatrix(), m_pCameraMngr->GetViewMatrix(), ToMatrix4(m_qArcBall));
-	}
+	// Get the Projection Matrix and View Matrix out of the camera
+	matrix4 viewMatrix = m_pCameraMngr->GetViewMatrix();
+	matrix4 projMatrix = m_pCameraMngr->GetProjectionMatrix();
+	matrix4 arcbMatrix = ToMatrix4(m_qArcBall);
 
-	//m_pMesh->Render(m_pCameraMngr->GetProjectionMatrix(), m_pCameraMngr->GetViewMatrix(), ToMatrix4(m_qArcBall));
-	//m_pMesh1->Render(m_pCameraMngr->GetProjectionMatrix(), m_pCameraMngr->GetViewMatrix(), glm::translate(vector3( 3.0f, 0.0f, 0.0f)));
+	// Display the Space Invader's meshes
+	m_SpaceInvader->Render(projMatrix, viewMatrix, arcbMatrix);
+
+	for (int i = 0; i < m_SpaceInvaderArmy.size(); i++)
+	{
+		m_SpaceInvaderArmy[i]->Render(projMatrix, viewMatrix, arcbMatrix);
+	}
 		
 	// draw a skybox
 	m_pMeshMngr->AddSkyboxToRenderList();
