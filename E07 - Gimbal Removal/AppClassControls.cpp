@@ -416,24 +416,25 @@ void Application::ProcessKeyboard(void)
 #pragma endregion
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::X))
 	{
+		//glm::mat4 rotMatrix = toVeco(m_quarternion);
 		if (fMultiplier)
-			m_v3Rotation.x -= 1.0f;
+			m_quarternion = m_quarternion * glm::quat(glm::vec3(-ROT_MAG, 0, 0));
 		else
-			m_v3Rotation.x += 1.0f;
+			m_quarternion = m_quarternion * glm::quat(glm::vec3(ROT_MAG, 0, 0));
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Y))
 	{
 		if (fMultiplier)
-			m_v3Rotation.y -= 1.0f;
+			m_quarternion = m_quarternion * glm::quat(glm::vec3(0, -ROT_MAG, 0));
 		else
-			m_v3Rotation.y += 1.0f;
+			m_quarternion = m_quarternion * glm::quat(glm::vec3(0, ROT_MAG, 0));
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
 	{
 		if (fMultiplier)
-			m_v3Rotation.z -= 1.0f;
+			m_quarternion = m_quarternion * glm::quat(glm::vec3(0, 0, -ROT_MAG));
 		else
-			m_v3Rotation.z += 1.0f;
+			m_quarternion = m_quarternion * glm::quat(glm::vec3(0, 0, ROT_MAG));
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
 	{

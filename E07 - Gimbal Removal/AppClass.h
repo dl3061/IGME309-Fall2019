@@ -12,11 +12,14 @@ Date: 2017/05
 
 #include "MyMesh.h"
 
+#define ROT_MAG	(0.05f)
+
 class Application
 {
 	matrix4 m_m4Model = IDENTITY_M4;
 	quaternion m_qOrientation;
 	vector3 m_v3Rotation;
+	glm::quat m_quarternion;
 	MyMesh* m_pMesh = nullptr;
 	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
 
