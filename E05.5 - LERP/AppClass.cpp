@@ -53,18 +53,24 @@ void Application::Display(void)
 
 	//calculate the current position
 	vector3 v3CurrentPos;
-	
-
-
-
-
-	//your code goes here
 	v3CurrentPos = vector3(0.0f, 0.0f, 0.0f);
-	//-------------------
-	
 
+	// Get the previous (or current) stop, and the next stop that we're approaching.
+	uint maxStops = m_stopsList.size();
+	uint currStop = ((uint)(fTimer / TIME_PER_STOP)) % maxStops;
+	uint nextStop = currStop + 1;
+	if (nextStop >= maxStops)
+		nextStop = 0;
 
-	
+	vector3 currStopPos = m_stopsList[currStop];
+	vector3 nextStopPos = m_stopsList[nextStop];
+
+	// Get the elapsed time between stops as a 0-1 fraction.
+	float percentTimeBetweenStops = fmod(fTimer, TIME_PER_STOP) / TIME_PER_STOP;
+
+	// Perform the lerp.
+	v3CurrentPos = glm::lerp(currStopPos, nextStopPos, percentTimeBetweenStops);
+
 	matrix4 m4Model = glm::translate(v3CurrentPos);
 	m_pModel->SetModelMatrix(m4Model);
 

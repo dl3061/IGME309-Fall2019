@@ -10,6 +10,8 @@ Date: 2017/05
 #include "ControllerConfiguration.h"
 #include "imgui\ImGuiObject.h"
 
+#define TIME_PER_STOP (1.0f)
+
 class Application
 {
 	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
