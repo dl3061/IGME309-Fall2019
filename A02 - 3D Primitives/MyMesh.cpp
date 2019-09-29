@@ -673,7 +673,7 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	float degreesPerCol = 360.0 / cols;
 
 	// Calculate the degrees per verticald division divided among rows
-	float degreesPerRow = 360.0 / rows;
+	float degreesPerRow = 180.0 / rows;
 
 	// Calculate the upper tip and lower tip. 
 	vector3 ceilCenter = vector3(0.0f, a_fRadius, 0.0f);
@@ -682,56 +682,126 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	// Calculate the points around the outer base at a certain row. 
 		// Calculate as if it was a unit circle on the xz plane, starting on the positive x-axis, 
 	// Also calculate the points around the outer base at the next row
-	vector3* lowerPoints = new vector3(cols);
-	vector3* upperPoints = new vector3(cols);
+	vector3* lowerPoints = (vector3*) new vector3[cols];
+	vector3* upperPoints = (vector3*) new vector3[cols];
+
+	// Add the first row
+	for (int j = 0; j < cols; j++)
+	{
+		float rowNextDegrees = 0.0f + degreesPerRow;
+		float rowRadius = a_fRadius * sin(rowNextDegrees * (PI / 180));
+		float rowHeight = a_fRadius * cos(rowNextDegrees * (PI / 180) + PI);
+
+		float colCurrDegrees = degreesPerCol * j;
+		float colNextDegrees = degreesPerCol * (j + 1);
+
+		// Calculate the upper points
+		if (j == 0)
+		{
+			// If we're the first column, calculate current point. 
+			//		All subsequent cols would have this already calculated from previous's column's "next"
+			upperPoints[j].x = rowRadius * cos(colCurrDegrees * (PI / 180));
+			upperPoints[j].y = rowHeight;
+			upperPoints[j].z = -rowRadius * sin(colCurrDegrees * (PI / 180));
+		}
+		if (j < cols - 1)
+		{
+			upperPoints[j + 1].x = rowRadius * cos(colNextDegrees * (PI / 180));
+			upperPoints[j + 1].y = rowHeight;
+			upperPoints[j + 1].z = -rowRadius * sin(colNextDegrees * (PI / 180));
+		}
+
+		// Add the points as triangles
+		if (j < cols - 1)
+		{
+			AddTri(baseCenter, upperPoints[j + 1], upperPoints[j]);
+		}
+		else
+		{
+			AddTri(baseCenter, upperPoints[0], upperPoints[j]);
+		}
+	}
 
 	// Following code is reworked from E04 - Circle Creation
-	for (int i = 1; i < a_nSubdivisions; i++)
+	for (int i = 1; i < rows - 1; i++)
 	{
 		// Free lowerPoints and point it towards upperPoints (shift up a row)
 		if (lowerPoints != nullptr)
 			delete[] lowerPoints;
-		lowerPoints = upperPoints;
+		lowerPoints = (vector3*) upperPoints;
 
 		// Calc the new upperPoints
-		upperPoints = new vector3(cols);
+		upperPoints = (vector3*) new vector3[cols];
 		float rowNextDegrees = degreesPerRow * (i + 1);
 		float rowRadius = a_fRadius * sin(rowNextDegrees * (PI / 180));
+		float rowHeight = a_fRadius * cos(rowNextDegrees * (PI / 180) + PI);
 
 		for (int j = 0; j < cols; j++)
 		{
 			float colCurrDegrees = degreesPerCol * j;
 			upperPoints[j].x = rowRadius * cos(colCurrDegrees * (PI / 180));
+			upperPoints[j].y = rowHeight;
 			upperPoints[j].z = -rowRadius * sin(colCurrDegrees * (PI / 180));
 		}
 
 		// Draw quads between lowerPoints and upperPoints
+		for (int j = 0; j < cols; j++)
+		{
+			// Get the points (for readability)
+			vector3 lowerPoint = lowerPoints[j];
+			vector3 upperPoint = upperPoints[j];
+			vector3 lowerPointNext;
+			vector3 upperPointNext;
 
-		// Add the outer side of the tube
-		AddQuad(outerPoint + baseOffset,
-			outerPointNext + baseOffset,
-			outerPoint + ceilOffset,
-			outerPointNext + ceilOffset);
+			if (j < cols - 1)
+			{
+				// Get next
+				lowerPointNext = lowerPoints[j+1];
+				upperPointNext = upperPoints[j+1];
+			}
+			else
+			{
+				// Loop around
+				lowerPointNext = lowerPoints[0];
+				upperPointNext = upperPoints[0];
+			}
 
-		// Add the inner side of the tube
-		AddQuad(
-			innerPointNext + baseOffset,
-			innerPoint + baseOffset,
-			innerPointNext + ceilOffset,
-			innerPoint + ceilOffset);
-
-		// Add the upper base / ceiling
-		AddQuad(outerPoint + ceilOffset,
-			outerPointNext + ceilOffset,
-			innerPoint + ceilOffset,
-			innerPointNext + ceilOffset);
-
-		// Add the bottom base
-		AddQuad(innerPoint + baseOffset,
-			innerPointNext + baseOffset,
-			outerPoint + baseOffset,
-			outerPointNext + baseOffset);
+			// Add the outer side of the sphere
+			AddQuad(lowerPoint, lowerPointNext, upperPoint, upperPointNext);
+		}
 	}
+
+	// Add the last row
+
+	// Free lowerPoints and point it towards upperPoints (shift up a row)
+	if (lowerPoints != nullptr)
+		delete[] lowerPoints;
+	lowerPoints = (vector3*) upperPoints;
+
+	for (int j = 0; j < cols; j++)
+	{
+		// Add the points as triangles
+		if (j < cols - 1)
+		{
+			AddTri(lowerPoints[j], lowerPoints[j+1], ceilCenter);
+		}
+		else
+		{
+			AddTri(lowerPoints[j], lowerPoints[0], ceilCenter);
+		}
+	}
+
+	// Frees
+	bool sharedPointer = lowerPoints == upperPoints;
+	if (lowerPoints != nullptr)
+		delete[] lowerPoints;
+	lowerPoints = nullptr;
+	if (sharedPointer)
+		upperPoints = nullptr;
+
+	if (upperPoints != nullptr)
+		delete[] upperPoints;
+	upperPoints = nullptr;
 
 	// -------------------------------
 
