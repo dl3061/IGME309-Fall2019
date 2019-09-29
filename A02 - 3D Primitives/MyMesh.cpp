@@ -679,6 +679,7 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 				outerPoints[j] = center;
 				outerPoints[j].y += (-innerRadius) * cos(degrees * (PI / 180));
 
+				// Offset it on the xz plane what its horizontal offset is
 				float xzOffset = (-innerRadius) * sin(degrees * (PI / 180));
 				vector3 dir = center / length(center);
 				outerPoints[j] += dir * xzOffset;
@@ -701,6 +702,7 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 				outerPointsNext[j] = center;
 				outerPointsNext[j].y += (-innerRadius) * cos(degrees * (PI / 180));
 
+				// Offset it on the xz plane what its horizontal offset is
 				float xzOffset = (-innerRadius)* sin(degrees * (PI / 180));
 				vector3 dir = center / length(center);
 				outerPointsNext[j] += dir * xzOffset;
