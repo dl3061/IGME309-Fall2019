@@ -183,6 +183,8 @@ void MyMesh::AddTri(vector3 a_vBottomLeft, vector3 a_vBottomRight, vector3 a_vTo
 	AddVertexPosition(a_vBottomRight);
 	AddVertexPosition(a_vTopLeft);
 }
+
+
 void MyMesh::AddQuad(vector3 a_vBottomLeft, vector3 a_vBottomRight, vector3 a_vTopLeft, vector3 a_vTopRight)
 {
 	//C--D
@@ -307,8 +309,66 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	Release();
 	Init();
 
-	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	// -------------------------------
+
+	// Calculate the degrees per division divided among a_nSubdivisions
+	float degreesPerDivision = 360.0 / a_nSubdivisions;
+
+	// Calculate the points of the cone (centered at origin). 
+		// Tip of cone 1/2 a_fHeight above
+		// Base of cone is 1/2 a_fHeight below
+		// Radius is... a_fRadius
+	float halfHeight = a_fHeight / 2.0f;
+	vector3 coneTip = vector3(0.0f, halfHeight, 0.0f);
+	vector3 baseCenter = vector3(0.0f, -halfHeight, 0.0f);
+
+	// Calculate and add the points around the radius of the base. 
+		// Calculate as if it was a unit circle on the xz plane, starting on the positive x-axis, 
+	vector3 outerPoint = vector3 (0.0f, -halfHeight, 0.0f);
+	vector3 outerPointNext = vector3(0.0f, -halfHeight, 0.0f);
+
+	// Following code is reworked from E04 - Circle Creation
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		float currDegrees = degreesPerDivision * i;
+		float nextDegrees = degreesPerDivision * (i + 1);
+
+		// "Calc" outerPoint
+			// outerPoint starts at zero degrees for the first division.
+			// It then is always the previous divisions outerPointNext, so don't re-calcculate. 
+		if (i == 0)
+		{
+			outerPoint.x = a_fRadius;
+			outerPoint.z = 0;
+		}
+		else
+		{
+			outerPoint = outerPointNext;
+		}
+
+		// Calc outerPointNext (the next point in the triangle, counter-clockwise, or a few degrees along the unit circle.)
+			// If it's the last division, it should go back to 360degrees or 0 degrees.
+		if (i == a_nSubdivisions - 1)
+		{
+			// Rounding errors can leave a degree or few sliced out of the circle.
+			//	Just snap to the 0-degrees on the unit circle. 
+			outerPointNext.x = a_fRadius;
+			outerPointNext.z = 0;
+		}
+		else
+		{
+			outerPointNext.x = a_fRadius * cos(nextDegrees * (PI / 180));
+			outerPointNext.z = a_fRadius * sin(nextDegrees * (PI / 180));
+		}
+
+		// Add the side of the cone
+		AddTri(outerPoint, outerPointNext, coneTip);
+		
+		// Add the part of the base
+			// Reverse the order since we're looking from bottom
+		AddTri(baseCenter, outerPointNext, outerPoint);
+	}
+
 	// -------------------------------
 
 	// Adding information about color
