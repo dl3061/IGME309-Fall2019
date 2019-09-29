@@ -507,8 +507,98 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	Release();
 	Init();
 
-	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
+	// -------------------------------
+
+	// Calculate the degrees per division divided among a_nSubdivisions
+	float degreesPerDivision = 360.0 / a_nSubdivisions;
+
+	// Calculate the points of the cone (centered at origin). 
+		// Tip of cylinder 1/2 a_fHeight above
+		// Base of cylinder is 1/2 a_fHeight below
+		// Radius is... a_fRadius
+	float halfHeight = a_fHeight / 2.0f;
+	vector3 ceilOffset = vector3(0.0f, halfHeight, 0.0f);
+	vector3 baseOffset = vector3(0.0f, -halfHeight, 0.0f);
+
+	vector3 ceilCenter = vector3(0.0f, 0.0f, 0.0f) + ceilOffset;
+	vector3 baseCenter = vector3(0.0f, 0.0f, 0.0f) + baseOffset;
+
+	// Calculate and add the points around the outer and inner radius of the base. 
+		// Calculate as if it was a unit circle on the xz plane, starting on the positive x-axis, 
+	vector3 outerPoint = vector3(0.0f, 0.0f, 0.0f);
+	vector3 outerPointNext = vector3(0.0f, 0.0f, 0.0f);
+	vector3 innerPoint = vector3(0.0f, 0.0f, 0.0f);
+	vector3 innerPointNext = vector3(0.0f, 0.0f, 0.0f);
+
+	// Following code is reworked from E04 - Circle Creation
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		float currDegrees = degreesPerDivision * i;
+		float nextDegrees = degreesPerDivision * (i + 1);
+
+		// "Calc" outerPoint
+			// outerPoint starts at zero degrees for the first division.
+			// It then is always the previous divisions outerPointNext, so don't re-calcculate. 
+		if (i == 0)
+		{
+			outerPoint.x = a_fOuterRadius;
+			outerPoint.z = 0;
+			innerPoint.x = a_fInnerRadius;
+			innerPoint.z = 0;
+		}
+		else
+		{
+			outerPoint = outerPointNext;
+			innerPoint = innerPointNext;
+		}
+
+		// Calc outerPointNext (the next point in the triangle, counter-clockwise, or a few degrees along the unit circle.)
+			// If it's the last division, it should go back to 360degrees or 0 degrees.
+		if (i == a_nSubdivisions - 1)
+		{
+			// Rounding errors can leave a degree or few sliced out of the circle.
+			//	Just snap to the 0-degrees on the unit circle. 
+			outerPointNext.x = a_fOuterRadius;
+			outerPointNext.z = 0;
+
+			innerPointNext.x = a_fInnerRadius;
+			innerPointNext.z = 0;
+		}
+		else
+		{
+			outerPointNext.x = a_fOuterRadius * cos(nextDegrees * (PI / 180));
+			outerPointNext.z = -a_fOuterRadius * sin(nextDegrees * (PI / 180));
+
+			innerPointNext.x = a_fInnerRadius * cos(nextDegrees * (PI / 180));
+			innerPointNext.z = -a_fInnerRadius * sin(nextDegrees * (PI / 180));
+		}
+
+		// Add the outer side of the tube
+		AddQuad(outerPoint + baseOffset,
+			outerPointNext + baseOffset,
+			outerPoint + ceilOffset,
+			outerPointNext + ceilOffset);
+
+		// Add the inner side of the tube
+		AddQuad(
+			innerPointNext + baseOffset,
+			innerPoint + baseOffset,
+			innerPointNext + ceilOffset,
+			innerPoint + ceilOffset);
+
+		// Add the upper base / ceiling
+		AddQuad(outerPoint + ceilOffset, 
+			outerPointNext + ceilOffset, 
+			innerPoint + ceilOffset, 
+			innerPointNext + ceilOffset);
+
+		// Add the bottom base
+		AddQuad(innerPoint + baseOffset,
+			innerPointNext + baseOffset,
+			outerPoint + baseOffset, 
+			outerPointNext + baseOffset);
+	}
+
 	// -------------------------------
 
 	// Adding information about color
