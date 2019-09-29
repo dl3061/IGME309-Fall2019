@@ -631,8 +631,97 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 	Release();
 	Init();
 
-	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
+	// -------------------------------
+
+	// Calculate the degrees per division divided among a_nSubdivisionsA
+	float degreesPerDivisionA = 360.0 / a_nSubdivisionsA;
+	float degreesPerDivisionB = 360.0 / a_nSubdivisionsB;
+
+	// I assume A refers to the divisions among the outer loop, and B refers to the divisions within the "pipe"
+
+	// Calculate the points of the torus (centered at origin). 
+		// InnerRadius is the radius of the pipe
+		// TorusRadius is the radius from the center of the torus to the center of the pipe
+	float innerRadius = (a_fOuterRadius - a_fInnerRadius) / 2.0f;
+	float torusRadius = (a_fOuterRadius + a_fInnerRadius) / 2.0f;
+
+	// Calculate and add the points around the outer and inner radius of the base. 
+		// Calculate as if it was a unit circle on the xz plane, starting on the positive x-axis, 
+	vector3* outerPoints = (vector3*) new vector3[a_nSubdivisionsB];
+	vector3* outerPointsNext = (vector3*) new vector3[a_nSubdivisionsB];
+
+	for (int i = 0; i < a_nSubdivisionsA; i++)
+	{
+		float currDegreesA = degreesPerDivisionA * i;
+		float nextDegreesA = degreesPerDivisionA * (i + 1);
+		if (i == a_nSubdivisionsA - 1)
+			nextDegreesA = 0;
+
+		if (i > 0)
+		{
+			// Free outerPoints and point it towards outerPointsNext (shift up a row)
+			if (outerPoints != nullptr)
+				delete[] outerPoints;
+			outerPoints = (vector3*)outerPointsNext;
+		}
+		else
+		{
+			// Calc outerPoints at 0 degrees
+			vector3 center = vector3();
+			center.x = (torusRadius) * sin(currDegreesA * (PI / 180));
+			center.y = 0.0f;
+			center.z = (-torusRadius) * cos(currDegreesA * (PI / 180));
+
+			for (int j = 0; j < a_nSubdivisionsB; j++)
+			{
+				float degrees = degreesPerDivisionB * j;
+
+				outerPoints[j] = center;
+				outerPoints[j].y += (-innerRadius) * cos(degrees * (PI / 180));
+
+				float xzOffset = (-innerRadius) * sin(degrees * (PI / 180));
+				vector3 dir = center / length(center);
+				outerPoints[j] += dir * xzOffset;
+			}
+		}
+
+		// Calc next
+		outerPointsNext = (vector3*) new vector3[a_nSubdivisionsB];
+		{
+			// Calc outerPoints
+			vector3 center = vector3();
+			center.x = (torusRadius)* sin(nextDegreesA * (PI / 180));
+			center.y = 0.0f;
+			center.z = (-torusRadius) * cos(nextDegreesA * (PI / 180));
+
+			for (int j = 0; j < a_nSubdivisionsB; j++)
+			{
+				float degrees = degreesPerDivisionB * j;
+
+				outerPointsNext[j] = center;
+				outerPointsNext[j].y += (-innerRadius) * cos(degrees * (PI / 180));
+
+				float xzOffset = (-innerRadius)* sin(degrees * (PI / 180));
+				vector3 dir = center / length(center);
+				outerPointsNext[j] += dir * xzOffset;
+			}
+		}
+
+		// Draw the quads
+		for (int j = 0; j < a_nSubdivisionsB; j++)
+		{
+			if (j == a_nSubdivisionsB - 1)
+			{
+				AddQuad(outerPoints[j], outerPointsNext[j], outerPoints[0], outerPointsNext[0]);
+			}
+			else
+			{
+				AddQuad(outerPoints[j], outerPointsNext[j], outerPoints[j + 1], outerPointsNext[j + 1]);
+			}
+		}
+
+	}
+
 	// -------------------------------
 
 	// Adding information about color
