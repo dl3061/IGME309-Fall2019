@@ -401,7 +401,7 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	// Calculate the degrees per division divided among a_nSubdivisions
 	float degreesPerDivision = 360.0 / a_nSubdivisions;
 
-	// Calculate the points of the cone (centered at origin). 
+	// Calculate the points of the cylinder (centered at origin). 
 		// Tip of cylinder 1/2 a_fHeight above
 		// Base of cylinder is 1/2 a_fHeight below
 		// Radius is... a_fRadius
@@ -512,9 +512,9 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	// Calculate the degrees per division divided among a_nSubdivisions
 	float degreesPerDivision = 360.0 / a_nSubdivisions;
 
-	// Calculate the points of the cone (centered at origin). 
-		// Tip of cylinder 1/2 a_fHeight above
-		// Base of cylinder is 1/2 a_fHeight below
+	// Calculate the points of the tube (centered at origin). 
+		// Tip of tube 1/2 a_fHeight above
+		// Base of tube is 1/2 a_fHeight below
 		// Radius is... a_fRadius
 	float halfHeight = a_fHeight / 2.0f;
 	vector3 ceilOffset = vector3(0.0f, halfHeight, 0.0f);
@@ -658,8 +658,81 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	Release();
 	Init();
 
-	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	// -------------------------------
+	// How a_nSubdivisions works is undefined -> "this is part of the assignment :)"
+	// The following are assumptions based on the given example image.
+	// The image provided in the example has 10 columns, 9 rows.
+		// Assume min number of rows must be at least 2 (top and bottom) + 1 (in between)
+				// it makes sense if rows = 3 + a_nSubdivisions, for a max of 9.
+		// Assume min number of columns = 4 (cut the sphere into 4)
+				// it makes sense if col = 4 + a_nSubdivisions, for a max of 10.
+	int rows = 3 + a_nSubdivisions;
+	int cols = 4 + a_nSubdivisions;
+
+	// Calculate the degrees per horizontal division divided among columns
+	float degreesPerCol = 360.0 / cols;
+
+	// Calculate the degrees per verticald division divided among rows
+	float degreesPerRow = 360.0 / rows;
+
+	// Calculate the upper tip and lower tip. 
+	vector3 ceilCenter = vector3(0.0f, a_fRadius, 0.0f);
+	vector3 baseCenter = vector3(0.0f, -a_fRadius, 0.0f);
+
+	// Calculate the points around the outer base at a certain row. 
+		// Calculate as if it was a unit circle on the xz plane, starting on the positive x-axis, 
+	// Also calculate the points around the outer base at the next row
+	vector3* lowerPoints = new vector3(cols);
+	vector3* upperPoints = new vector3(cols);
+
+	// Following code is reworked from E04 - Circle Creation
+	for (int i = 1; i < a_nSubdivisions; i++)
+	{
+		// Free lowerPoints and point it towards upperPoints (shift up a row)
+		if (lowerPoints != nullptr)
+			delete[] lowerPoints;
+		lowerPoints = upperPoints;
+
+		// Calc the new upperPoints
+		upperPoints = new vector3(cols);
+		float rowNextDegrees = degreesPerRow * (i + 1);
+		float rowRadius = a_fRadius * sin(rowNextDegrees * (PI / 180));
+
+		for (int j = 0; j < cols; j++)
+		{
+			float colCurrDegrees = degreesPerCol * j;
+			upperPoints[j].x = rowRadius * cos(colCurrDegrees * (PI / 180));
+			upperPoints[j].z = -rowRadius * sin(colCurrDegrees * (PI / 180));
+		}
+
+		// Draw quads between lowerPoints and upperPoints
+
+		// Add the outer side of the tube
+		AddQuad(outerPoint + baseOffset,
+			outerPointNext + baseOffset,
+			outerPoint + ceilOffset,
+			outerPointNext + ceilOffset);
+
+		// Add the inner side of the tube
+		AddQuad(
+			innerPointNext + baseOffset,
+			innerPoint + baseOffset,
+			innerPointNext + ceilOffset,
+			innerPoint + ceilOffset);
+
+		// Add the upper base / ceiling
+		AddQuad(outerPoint + ceilOffset,
+			outerPointNext + ceilOffset,
+			innerPoint + ceilOffset,
+			innerPointNext + ceilOffset);
+
+		// Add the bottom base
+		AddQuad(innerPoint + baseOffset,
+			innerPointNext + baseOffset,
+			outerPoint + baseOffset,
+			outerPointNext + baseOffset);
+	}
+
 	// -------------------------------
 
 	// Adding information about color
