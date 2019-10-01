@@ -16,6 +16,10 @@ Date: 2017/05
 #include "ControllerConfiguration.h"
 #include "imgui\ImGuiObject.h"
 
+#define MORBIT_INIT_RADIUS (1.0f)
+#define MORBIT_RADIUS_INCREMENT (0.5f)
+#define MORBIT_RADIUS_WIDTH (0.1f)
+
 class Application
 {
 	uint m_uOrbits = 0; //number of shapes starting at 3 and increasing in sides
