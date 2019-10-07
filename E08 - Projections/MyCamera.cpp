@@ -8,6 +8,20 @@ void Simplex::MyCamera::SetTarget(vector3 a_v3Target) { m_v3Target = a_v3Target;
 
 void Simplex::MyCamera::SetUp(vector3 a_v3Up) { m_v3Up = a_v3Up; }
 
+void Simplex::MyCamera::SetPerspectiveProjection(float a_FOV, float a_near, float a_far)
+{
+	SetPerspective(true);
+	SetFOV(a_FOV);
+	SetNearFar(vector2(a_near, a_far));
+}
+
+void Simplex::MyCamera::SetOrthoProjection(float a_xLeft, float a_xRight, float a_yBottom, float a_yTop, float a_near, float a_far)
+{
+	SetPerspective(false);
+	SetHorizontalPlanes(vector2(a_xLeft, a_xRight));
+	SetVerticalPlanes(vector2(a_yBottom, a_yTop));
+}
+
 void Simplex::MyCamera::SetPerspective(bool a_bPerspective) { m_bPerspective = a_bPerspective; }
 
 void Simplex::MyCamera::SetFOV(float a_fFOV) { m_fFOV = a_fFOV; }

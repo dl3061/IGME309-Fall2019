@@ -48,28 +48,136 @@ void Application::Display(void)
 	//calculate view and projection
 	switch (m_uProjection)
 	{
-	default:
-	case 1:
-		m_pCamera->ResetCamera();
-		break;
-	case 2:
-		m_pCamera->ResetCamera();
-		break;
-	case 3:
-		m_pCamera->ResetCamera();
-		break;
-	case 4:
-		m_pCamera->ResetCamera();
-		break;
-	case 5:
-		m_pCamera->ResetCamera();
-		break;
-	case 6:
-		m_pCamera->ResetCamera();
-		break;
-	case 7:
-		m_pCamera->ResetCamera();
-		break;
+		default:
+		case 1:
+		{
+			m_pCamera->ResetCamera();
+
+			// View Matrix -> Set camera's position, target and up
+			vector3 pos = vector3(0.0f, 0.0f, 10.0f);
+			vector3 target = vector3(0.0f, 0.0f, 0.0f);
+			vector3 up = vector3(0.0f, 1.0f, 0.0f);
+			m_pCamera->SetPositionTargetAndUpward(pos, target, up);
+
+			// Projection Matrix -> Set draw distances, etc
+			float FOV = 45.0f;
+			float distNear = 0.0001f;
+			float distFar = 1000.0f;
+			m_pCamera->SetPerspectiveProjection(FOV, distNear, distFar);
+
+			break;
+		}
+		case 2:
+		{
+			m_pCamera->ResetCamera();
+
+			// View Matrix -> Set camera's position, target and up
+			vector3 pos = vector3(0.0f, 0.0f, 10.0f);
+			vector3 target = vector3(0.0f, 0.0f, 0.0f);
+			vector3 up = vector3(0.0f, 1.0f, 0.0f);
+			m_pCamera->SetPositionTargetAndUpward(pos, target, up);
+
+			// Projection Matrix -> Set draw distances, etc
+			float xLeft = -5.0f;
+			float xRight = 5.0f;
+			float yBottom = -5.0f;
+			float yTop = 5.0f;
+			float distNear = 0.0001f;
+			float distFar = 1000.0f;
+			m_pCamera->SetOrthoProjection(xLeft, xRight, yBottom, yTop, distNear, distFar);
+
+			break;
+		}
+		case 3:
+		{
+			m_pCamera->ResetCamera();
+
+			// View Matrix -> Set camera's position, target and up
+			vector3 pos = vector3(25.0f, 0.0f, 0.0f);
+			vector3 target = vector3(0.0f, 0.0f, 0.0f);
+			vector3 up = vector3(0.0f, 0.0f, -1.0f);
+			m_pCamera->SetPositionTargetAndUpward(pos, target, up);
+
+			// Projection Matrix -> Set draw distances, etc
+			float FOV = 45.0f;
+			float distNear = 0.0001f;
+			float distFar = 1000.0f;
+			m_pCamera->SetPerspectiveProjection(FOV, distNear, distFar);
+
+			break;
+		}
+		case 4:
+		{
+			m_pCamera->ResetCamera();
+
+			// View Matrix -> Set camera's position, target and up
+			vector3 pos = vector3(0.0f, 0.0f, -15.0f);
+			vector3 target = vector3(0.0f, 0.0f, 0.0f);
+			vector3 up = vector3(0.0f, 1.0f, 0.0f);
+			m_pCamera->SetPositionTargetAndUpward(pos, target, up);
+
+			// Projection Matrix -> Set draw distances, etc
+			float FOV = 45.0f;
+			float distNear = 0.0001f;
+			float distFar = 1000.0f;
+			m_pCamera->SetPerspectiveProjection(FOV, distNear, distFar);
+
+			break;
+		}
+		case 5:
+		{
+			m_pCamera->ResetCamera();
+
+			// View Matrix -> Set camera's position, target and up
+			vector3 pos = vector3(0.0f, 0.0f, -15.0f);
+			vector3 target = vector3(0.0f, 0.0f, 0.0f);
+			vector3 up = vector3(0.0f, 1.0f, 0.0f);
+			m_pCamera->SetPositionTargetAndUpward(pos, target, up);
+
+			// Projection Matrix -> Set draw distances, etc
+			float FOV = 45.0f;
+			float distNear = 5.001f;
+			float distFar = 1000.0f;
+			m_pCamera->SetPerspectiveProjection(FOV, distNear, distFar);
+
+			break;
+		}
+		case 6:
+		{
+			m_pCamera->ResetCamera();
+
+			// View Matrix -> Set camera's position, target and up
+			vector3 pos = vector3(0.0f, 0.0f, -15.0f);
+			vector3 target = vector3(0.0f, 0.0f, 0.0f);
+			vector3 up = vector3(0.0f, 1.0f, 0.0f);
+			m_pCamera->SetPositionTargetAndUpward(pos, target, up);
+
+			// Projection Matrix -> Set draw distances, etc
+			float FOV = 45.0f;
+			float distNear = 0.0001f;
+			float distFar = 11.0f;
+			m_pCamera->SetPerspectiveProjection(FOV, distNear, distFar);
+
+			break;
+		}
+		case 7:
+		{
+			m_pCamera->ResetCamera();
+
+			// View Matrix -> Set camera's position, target and up
+			vector3 pos = vector3(0.0f, 0.0f, 10.0f);
+			vector3 target = vector3(0.0f, 0.0f, 0.0f);
+			vector3 up = vector3(0.0f, -1.0f, 0.0f);
+			m_pCamera->SetPositionTargetAndUpward(pos, target, up);
+
+			// Projection Matrix -> Set draw distances, etc
+			float FOV = 45.0f;
+			float distNear = 0.0001f;
+			float distFar = 1000.0f;
+			m_pCamera->SetPerspectiveProjection(FOV, distNear, distFar);
+
+			break;
+		}
 	}
 
 	m_pCamera->CalculateProjectionMatrix();

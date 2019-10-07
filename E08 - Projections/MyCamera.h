@@ -199,6 +199,16 @@ public:
 	void SetPositionTargetAndUpward(vector3 a_v3Position, vector3 a_v3Target, vector3 a_v3Upward = AXIS_Y);
 
 	/*
+	Helper function to set a perspective projection
+	*/
+	void Simplex::MyCamera::SetPerspectiveProjection(float a_FOV, float a_near, float a_far);
+
+	/*
+	Helper function to set a Ortho projection
+	*/
+	void Simplex::MyCamera::SetOrthoProjection(float a_xLeft, float a_xRight, float a_yBottom, float a_yTop, float a_near, float a_far);
+
+	/*
 	USAGE: Calculate what the camera should be looking at with the values of position target and up
 	ARGUMENTS: ---
 	OUTPUT: ---
