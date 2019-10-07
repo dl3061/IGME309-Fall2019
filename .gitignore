@@ -37,5 +37,9 @@ Z_DELETE
 *.stackdump
 *.opendb
 *.db
+
 .vs/
 _Binary/*_d.ini
+
+# Temp Folder to copy pasta Binary dlls and etc
+/Binary
