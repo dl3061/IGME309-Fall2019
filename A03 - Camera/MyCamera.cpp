@@ -152,11 +152,68 @@ void Simplex::MyCamera::CalculateProjectionMatrix(void)
 
 void MyCamera::MoveForward(float a_fDistance)
 {
-	//The following is just an example and does not take in account the forward vector (AKA view vector)
-	m_v3Position += vector3(0.0f, 0.0f,-a_fDistance);
-	m_v3Target += vector3(0.0f, 0.0f, -a_fDistance);
-	m_v3Above += vector3(0.0f, 0.0f, -a_fDistance);
+	// Get the direction (forward) from the view vector (column 2)
+	vector3 forward = vector3(transpose(m_m4View)[2]);
+		// vector3(m_m4View[0][2], m_m4View[1][2], m_m4View[2][2]);
+
+	// Calc displacement
+	vector3 displacement = forward * (-a_fDistance);
+
+	// Apply displacement
+	m_v3Position += displacement;
+	m_v3Target += displacement;
+	m_v3Above += displacement;
 }
 
-void MyCamera::MoveVertical(float a_fDistance){}//Needs to be defined
-void MyCamera::MoveSideways(float a_fDistance){}//Needs to be defined
+void MyCamera::MoveVertical(float a_fDistance)
+{
+	// Get the direction (up) from the view vector (column 1)
+	vector3 up = vector3(transpose(m_m4View)[1]);
+
+	// Calc displacement
+	vector3 displacement = up * (-a_fDistance);
+
+	// Apply displacement
+	m_v3Position += displacement;
+	m_v3Target += displacement;
+	m_v3Above += displacement;
+}
+
+void MyCamera::MoveSideways(float a_fDistance)
+{
+	// Get the direction (right) from the view vector (column 0)
+	vector3 right = vector3(transpose(m_m4View)[0]);
+
+	// Calc displacement
+	vector3 displacement = right * (-a_fDistance);
+
+	// Apply displacement
+	m_v3Position += displacement;
+	m_v3Target += displacement;
+	m_v3Above += displacement;
+}
+
+void MyCamera::Rotate(float fAngleX, float fAngleY)
+{
+	// Get the forward and up, as a vector
+	vector3 foward = m_v3Target - m_v3Position;
+	vector3 up = m_v3Above - m_v3Position;
+
+	// Rotate it
+	//	From testing:
+			// When forward z=-1, rotate around x=1
+			// When forward z=1, rotate around x=-1
+			// When forward x=-1, rotate around z=-1
+			// When forward x=1, rotate around x=1
+
+	foward = foward * glm::quat(glm::vec3(fAngleX * (-foward.z), -fAngleY, fAngleX * (foward.x)));
+	
+	//up = up * glm::quat(glm::vec3(0, 0, 0));
+		// Don't rotate up, to match sample demo.
+
+	// Set new target and up
+	m_v3Target = m_v3Position + foward;
+	m_v3Above = m_v3Position + up;
+
+	CalculateViewMatrix();
+}

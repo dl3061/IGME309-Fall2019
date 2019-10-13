@@ -230,6 +230,8 @@ public:
 	OUTPUT: ---
 	*/
 	void MoveSideways(float a_fDistance = 0.1f);
+
+	void MyCamera::Rotate(float fAngleX, float fAngleY);
 };
 
 } //namespace Simplex
