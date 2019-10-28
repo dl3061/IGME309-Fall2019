@@ -87,6 +87,71 @@ void MyRigidBody::SetModelMatrix(matrix4 a_m4ModelMatrix)
 	//your code goes here---------------------
 	m_v3MinG = m_v3MinL;
 	m_v3MaxG = m_v3MaxL;
+
+	// Get the list of points (similar to below in MyRigidBody, but calculate it rather than given as an argument)
+	std::vector<vector3> pointList;
+	{
+		// Temporary point
+		vector3 point = vector3();
+		
+		// Get each point (2x2x2 = 8 points)
+		for (int i = 0; i < 2; i++) // for each X vertex coordinate (in this case: just min/max)
+		{
+			if (i == 0)
+				point.x = m_v3MinG.x;
+			else
+				point.x = m_v3MaxG.x;
+
+			for (int j = 0; j < 2; j++)  // for each Y vertex coordinate (in this case: just min/max)
+			{
+				if (j == 0)
+					point.y = m_v3MinG.y;
+				else
+					point.y = m_v3MaxG.y;
+
+				for (int k = 0; k < 2; k++)  // for each Z vertex coordinate (in this case: just min/max)
+				{
+					if (k == 0)
+						point.z = m_v3MinG.z;
+					else
+						point.z = m_v3MaxG.z;
+
+					// vector3 globalPoint = vector3(m_m4ToWorld * vector3(vector3(point.x, point.y, point.z), 1));
+					vector3 globalPoint = vector3(m_m4ToWorld * vector4(vector3(point.x, point.y, point.z), 1));
+					pointList.push_back(globalPoint);
+				}
+			}
+		}
+	}
+	uint uVertexCount = pointList.size();
+	
+	if (uVertexCount == 0)
+		return;
+	else
+	{
+		m_v3MinG = pointList[0];
+		m_v3MaxG = pointList[0];
+	}
+
+	//Get the max and min out of the list (from below)
+	for (uint i = 1; i < uVertexCount; ++i)
+	{
+		if (m_v3MaxG.x < pointList[i].x)
+			m_v3MaxG.x = pointList[i].x;
+		else if (m_v3MinG.x > pointList[i].x)
+			m_v3MinG.x = pointList[i].x;
+
+		if (m_v3MaxG.y < pointList[i].y)
+			m_v3MaxG.y = pointList[i].y;
+		else if (m_v3MinG.y > pointList[i].y)
+			m_v3MinG.y = pointList[i].y;
+
+		if (m_v3MaxG.z < pointList[i].z)
+			m_v3MaxG.z = pointList[i].z;
+		else if (m_v3MinG.z > pointList[i].z)
+			m_v3MinG.z = pointList[i].z;
+	}
+
 	//----------------------------------------
 
 	//we calculate the distance between min and max vectors
@@ -109,14 +174,20 @@ MyRigidBody::MyRigidBody(std::vector<vector3> a_pointList)
 	//Get the max and min out of the list
 	for (uint i = 1; i < uVertexCount; ++i)
 	{
-		if (m_v3MaxL.x < a_pointList[i].x) m_v3MaxL.x = a_pointList[i].x;
-		else if (m_v3MinL.x > a_pointList[i].x) m_v3MinL.x = a_pointList[i].x;
+		if (m_v3MaxL.x < a_pointList[i].x) 
+			m_v3MaxL.x = a_pointList[i].x;
+		else if (m_v3MinL.x > a_pointList[i].x)
+			m_v3MinL.x = a_pointList[i].x;
 
-		if (m_v3MaxL.y < a_pointList[i].y) m_v3MaxL.y = a_pointList[i].y;
-		else if (m_v3MinL.y > a_pointList[i].y) m_v3MinL.y = a_pointList[i].y;
+		if (m_v3MaxL.y < a_pointList[i].y) 
+			m_v3MaxL.y = a_pointList[i].y;
+		else if (m_v3MinL.y > a_pointList[i].y) 
+			m_v3MinL.y = a_pointList[i].y;
 
-		if (m_v3MaxL.z < a_pointList[i].z) m_v3MaxL.z = a_pointList[i].z;
-		else if (m_v3MinL.z > a_pointList[i].z) m_v3MinL.z = a_pointList[i].z;
+		if (m_v3MaxL.z < a_pointList[i].z)
+			m_v3MaxL.z = a_pointList[i].z;
+		else if (m_v3MinL.z > a_pointList[i].z) 
+			m_v3MinL.z = a_pointList[i].z;
 	}
 
 	//with model matrix being the identity, local and global are the same
