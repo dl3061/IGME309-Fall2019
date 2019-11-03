@@ -24,7 +24,6 @@ void MyRigidBody::Init(void)
 	m_v3ARBBSize = ZERO_V3;
 
 	m_m4ToWorld = IDENTITY_M4;
-	m_SATLastSepAxis = ZERO_V3;
 }
 void MyRigidBody::Swap(MyRigidBody& a_pOther)
 {
@@ -275,8 +274,6 @@ void MyRigidBody::AddToRenderList(void)
 		else
 			m_pMeshMngr->AddWireCubeToRenderList(glm::translate(GetCenterGlobal()) * glm::scale(m_v3ARBBSize), C_YELLOW);
 	}
-
-	m_pMeshMngr->AddPlaneToRenderList(glm::translate(m_m4ToWorld, m_v3Center + m_SATLastSepAxis), C_YELLOW);
 }
 
 uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
