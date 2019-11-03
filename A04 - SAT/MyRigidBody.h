@@ -255,8 +255,6 @@ private:
 	*/
 	uint IsThereSeparationOnAxis(MyRigidBody* const a_pOther, vector3 axis);
 
-	vector3 m_SATLastSepAxis;
-
 };//class
 
 } //namespace Simplex

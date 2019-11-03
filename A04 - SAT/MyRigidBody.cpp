@@ -291,7 +291,7 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	Simplex that might help you [eSATResults] feel free to use it.
 	(eSATResults::SAT_NONE has a value of 0)
 	*/
-
+	
 	// Get the axises
 	vector3 Ax, Ay, Az;
 	{
@@ -326,22 +326,13 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 
 	// Check if they are colliding against Ax, Ay and Az
 	if (IsThereSeparationOnAxis(a_pOther, Ax))
-	{
-		m_SATLastSepAxis = Ax;
 		return eSATResults::SAT_AX;
-	}
 
 	if (IsThereSeparationOnAxis(a_pOther, Ay))
-	{
-		m_SATLastSepAxis = Ay;
 		return eSATResults::SAT_AY;
-	}
 
 	if (IsThereSeparationOnAxis(a_pOther, Az))
-	{
-		m_SATLastSepAxis = Az;
 		return eSATResults::SAT_AZ;
-	}
 
 	// Check if they are colliding against Bx, By and Bz
 	if (IsThereSeparationOnAxis(a_pOther, Bx))
