@@ -15,7 +15,7 @@ class MyRigidBody
 {
 	MeshManager* m_pMeshMngr = nullptr; //for displaying the Rigid Body
 
-	bool m_bVisibleBS = false; //Visibility of bounding sphere
+	bool m_bVisibleBS = true; //Visibility of bounding sphere
 	bool m_bVisibleOBB = true; //Visibility of Oriented bounding box
 	bool m_bVisibleARBB = true; //Visibility of axis (Re)aligned bounding box
 
@@ -240,6 +240,7 @@ private:
 	Output: ---
 	*/
 	void Init(void);
+
 	/*
 	USAGE: This will try to find a Separation Axis, will return 0 if 
 		none found (there is a collision)
@@ -247,6 +248,15 @@ private:
 	OUTPUT: 0 for colliding, other = first axis that succeeds test
 	*/
 	uint SAT(MyRigidBody* const a_pOther);
+
+	/*
+		Helper funciton to project each verticies against an axis and check for
+			separation or lack thereof. 
+	*/
+	uint IsThereSeparationOnAxis(MyRigidBody* const a_pOther, vector3 axis);
+
+	vector3 m_SATLastSepAxis;
+
 };//class
 
 } //namespace Simplex
