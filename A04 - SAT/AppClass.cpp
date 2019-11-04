@@ -3,7 +3,7 @@ using namespace Simplex;
 void Application::InitVariables(void)
 {
 	//Change this to your name and email
-	m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
+	m_sProgrammer = "David Lin - dl3061@rit.edu";
 
 	//Set the position and target of the camera
 	m_pCameraMngr->SetPositionTargetAndUpward(
@@ -22,6 +22,10 @@ void Application::InitVariables(void)
 	m_pSteve = new Model();
 	m_pSteve->Load("Minecraft\\Steve.obj");
 	m_pSteveRB = new MyRigidBody(m_pSteve->GetVertexList());
+
+	// plane
+	uint m_PlaneIndex = m_pMeshMngr->GeneratePlane(75.0);
+
 }
 void Application::Update(void)
 {
@@ -35,7 +39,7 @@ void Application::Update(void)
 	CameraRotation();
 
 	//Set model matrix to the creeper
-	matrix4 mCreeper = glm::translate(m_v3Creeper) * ToMatrix4(m_qCreeper) * ToMatrix4(m_qArcBall);
+	matrix4 mCreeper = glm::translate(m_v3Creeper) * ToMatrix4(m_qCreeper);// *ToMatrix4(m_qArcBall);
 	m_pCreeper->SetModelMatrix(mCreeper);
 	m_pCreeperRB->SetModelMatrix(mCreeper);
 	m_pMeshMngr->AddAxisToRenderList(mCreeper);
@@ -45,6 +49,18 @@ void Application::Update(void)
 	m_pSteve->SetModelMatrix(mSteve);
 	m_pSteveRB->SetModelMatrix(mSteve);
 	m_pMeshMngr->AddAxisToRenderList(mSteve);
+
+	// Plane
+	matrix4 mPLaneScale = glm::scale(vector3(10.0, 10.0, 10.0));
+	matrix4 mPlanePosition = glm::translate(0.5 * (m_v3Creeper + vector3(2.25f, 0.0f, 0.0f)));
+	matrix4 mPlaneRotation = glm::lookAt(ZERO_V3, m_pCreeperRB->GetLastSATAxis(), vector3(0.0, 1.0, 0.0));
+	matrix4 mPlaneRotation2 = glm::lookAt(m_pCreeperRB->GetLastSATAxis(), ZERO_V3, vector3(0.0, 1.0, 0.0));
+
+	matrix4 mPlane = mPlanePosition * mPlaneRotation * mPLaneScale;
+	m_pMeshMngr->AddPlaneToRenderList(mPlane, C_GREEN);
+
+	matrix4 mPlane2 = mPlanePosition * mPlaneRotation2 * mPLaneScale;
+	m_pMeshMngr->AddPlaneToRenderList(mPlane2, C_GREEN_DARK);
 
 	bool bColliding = m_pCreeperRB->IsColliding(m_pSteveRB);
 

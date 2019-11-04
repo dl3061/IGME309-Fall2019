@@ -124,6 +124,10 @@ void MyRigidBody::SetModelMatrix(matrix4 a_m4ModelMatrix)
 	//we calculate the distance between min and max vectors
 	m_v3ARBBSize = m_v3MaxG - m_v3MinG;
 }
+vector3 Simplex::MyRigidBody::GetLastSATAxis(void)
+{
+	return m_lastSATaxis;
+}
 //The big 3
 MyRigidBody::MyRigidBody(std::vector<vector3> a_pointList)
 {
@@ -228,11 +232,14 @@ bool MyRigidBody::IsColliding(MyRigidBody* const a_pOther)
 {
 	//check if spheres are colliding as pre-test
 	bool bColliding = (glm::distance(GetCenterGlobal(), a_pOther->GetCenterGlobal()) < m_fRadius + a_pOther->m_fRadius);
+
+	// Run it always
+	uint SAT_result = SAT(a_pOther) != eSATResults::SAT_NONE;
 	
 	//if they are colliding check the SAT
 	if (bColliding)
 	{
-		if (SAT(a_pOther) != eSATResults::SAT_NONE)
+		if (SAT_result != eSATResults::SAT_NONE)
 			bColliding = false;// reset to false
 	}
 
@@ -374,6 +381,7 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 		return eSATResults::SAT_AZxBZ;
 
 	//there is no axis test that separates this two objects
+	m_lastSATaxis = ZERO_V3;
 	return eSATResults::SAT_NONE;
 }
 
@@ -482,6 +490,7 @@ uint MyRigidBody::IsThereSeparationOnAxis(MyRigidBody* const a_pOther, vector3 a
 	else
 	{
 		// No overlap at all -> there is separation
+		m_lastSATaxis = axis;
 		return 1;
 	}
 }

@@ -225,6 +225,8 @@ public:
 	Output: ---
 	*/
 	void SetModelMatrix(matrix4 a_m4ModelMatrix);
+
+	vector3 GetLastSATAxis(void);
 #pragma endregion
 	
 private:
@@ -248,6 +250,8 @@ private:
 	OUTPUT: 0 for colliding, other = first axis that succeeds test
 	*/
 	uint SAT(MyRigidBody* const a_pOther);
+
+	vector3 m_lastSATaxis;
 
 	/*
 		Helper funciton to project each verticies against an axis and check for

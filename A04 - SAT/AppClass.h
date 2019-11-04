@@ -20,6 +20,7 @@ class Application
 	vector3 m_v3Creeper; //position of the creeper
 	Model* m_pCreeper = nullptr; //model to display
 	Model* m_pSteve = nullptr; //model to display
+	Mesh* m_plane = nullptr;
 
 	quaternion m_qCreeper; //quaternion for the creeper
 
