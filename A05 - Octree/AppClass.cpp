@@ -11,7 +11,7 @@ void Application::InitVariables(void)
 	m_pLightMngr->SetPosition(vector3(0.0f, 3.0f, 13.0f), 1); //set the position of first light (0 is reserved for ambient light)
 
 #ifdef DEBUG
-	uint uInstances = 90;
+	uint uInstances = 900;
 #else
 	uint uInstances = 1849;
 #endif
@@ -33,7 +33,6 @@ void Application::InitVariables(void)
 			m_pEntityMngr->SetModelMatrix(m4Position);
 		}
 	}
-	m_Octree->RegenerateOctree();
 	m_uOctantLevels = 1;
 
 	m_pEntityMngr->Update();
@@ -49,6 +48,17 @@ void Application::Update(void)
 	//Is the first person camera active?
 	CameraRotation();
 	
+	// Update OctTree
+	static uint nClock = m_pSystem->GenClock();
+	static bool bStarted = false;
+	if (m_pSystem->IsTimerDone(nClock) || !bStarted)
+	{
+		bStarted = true;
+		m_Octree->RegenerateOctree();
+		m_pSystem->StartTimerOnClock(15.0, nClock);
+	}
+
+
 	//Update Entity Manager
 	m_pEntityMngr->Update();
 

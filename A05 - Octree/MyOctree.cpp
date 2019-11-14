@@ -34,9 +34,9 @@ int MyOctree::AddEntity(MyEntity* a_entity)
 {
 	if (a_entity != nullptr)
 	{
-		MyEntity entity = *a_entity;
+		MyEntity* entity = a_entity;
 
-		vector3 pos = entity.GetRigidBody()->GetCenterGlobal();
+		vector3 pos = entity->GetRigidBody()->GetCenterGlobal();
 
 		// If it's in 
 		if (IsPositionInTree(pos))
@@ -130,13 +130,18 @@ int MyOctree::AreEntitiesInSameNode(MyEntity* a_entity_A, MyEntity* a_entity_B, 
 
 void Simplex::MyOctree::CheckCollisions(int a_depth)
 {
-	if (m_iDepth == a_depth)
+	if (m_iDepth == a_depth && m_EntityCount > 0)
 	{
 		// Perform collision check
-		for (uint i = 0; i < m_EntityCount - 1; i++)
+		uint checkCount = m_EntityCount - 1; // Placed here for breakpoint
+
+		for (uint i = 0; i < checkCount; i++)
 		{
 			for (uint j = i + 1; j < m_EntityCount; j++)
 			{
+				vector3 pos1 = m_pEntityList[i]->GetRigidBody()->GetCenterGlobal();
+				vector3 pos2 = m_pEntityList[j]->GetRigidBody()->GetCenterGlobal();
+
 				m_pEntityList[i]->IsColliding(m_pEntityList[j]);
 			}
 		}

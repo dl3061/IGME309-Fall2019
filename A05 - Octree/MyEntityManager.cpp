@@ -174,9 +174,10 @@ void Simplex::MyEntityManager::Update(void)
 	}
 
 	//check collisions
+
+	m_Octree->CheckCollisions(1);
 	
-	//m_Octree->CheckCollisions(2);
-	
+	/*
 	for (uint i = 0; i < m_uEntityCount - 1; i++)
 	{
 		for (uint j = i + 1; j < m_uEntityCount; j++)
@@ -185,6 +186,7 @@ void Simplex::MyEntityManager::Update(void)
 				m_mEntityArray[i]->IsColliding(m_mEntityArray[j]);
 		}
 	}
+	*/
 	
 	
 }
