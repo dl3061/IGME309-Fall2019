@@ -6,6 +6,7 @@ Date: 2017/07
 #define __MYENTITYMANAGER_H_
 
 #include "MyEntity.h"
+#include "MyOctree.h"
 
 namespace Simplex
 {
@@ -18,6 +19,8 @@ class MyEntityManager
 	PEntity* m_mEntityArray = nullptr; //array of MyEntity pointers
 	static MyEntityManager* m_pInstance; // Singleton pointer
 public:
+	MyOctree* m_Octree = nullptr;//Root of the octree
+
 	/*
 	Usage: Gets the singleton pointer
 	Arguments: ---

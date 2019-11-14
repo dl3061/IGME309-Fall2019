@@ -277,25 +277,100 @@ void MyRigidBody::ClearCollidingList(void)
 }
 uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 {
-	/*
-	Your code goes here instead of this comment;
+	// Get the axises
+	vector3 Ax, Ay, Az;
+	{
+		Ax = vector3(m_m4ToWorld * vector4(vector3(1.0, 0.0, 0.0) + m_v3CenterL, 1.0f));
+		Ay = vector3(m_m4ToWorld * vector4(vector3(0.0, 1.0, 0.0) + m_v3CenterL, 1.0f));
+		Az = vector3(m_m4ToWorld * vector4(vector3(0.0, 0.0, 1.0) + m_v3CenterL, 1.0f));
 
-	For this method, if there is an axis that separates the two objects
-	then the return will be different than 0; 1 for any separating axis
-	is ok if you are not going for the extra credit, if you could not
-	find a separating axis you need to return 0, there is an enum in
-	Simplex that might help you [eSATResults] feel free to use it.
-	(eSATResults::SAT_NONE has a value of 0)
-	*/
+		Ax = Ax - vector3(m_m4ToWorld * vector4(m_v3CenterL, 1.0f));
+		Ay = Ay - vector3(m_m4ToWorld * vector4(m_v3CenterL, 1.0f));
+		Az = Az - vector3(m_m4ToWorld * vector4(m_v3CenterL, 1.0f));
+	}
+
+	vector3 Bx, By, Bz;
+	{
+		Bx = vector3(a_pOther->m_m4ToWorld * vector4(vector3(1.0, 0.0, 0.0) + a_pOther->m_v3CenterL, 1.0f));
+		By = vector3(a_pOther->m_m4ToWorld * vector4(vector3(0.0, 1.0, 0.0) + a_pOther->m_v3CenterL, 1.0f));
+		Bz = vector3(a_pOther->m_m4ToWorld * vector4(vector3(0.0, 0.0, 1.0) + a_pOther->m_v3CenterL, 1.0f));
+
+		Bx = Bx - vector3(a_pOther->m_m4ToWorld * vector4(a_pOther->m_v3CenterL, 1.0f));
+		By = By - vector3(a_pOther->m_m4ToWorld * vector4(a_pOther->m_v3CenterL, 1.0f));
+		Bz = Bz - vector3(a_pOther->m_m4ToWorld * vector4(a_pOther->m_v3CenterL, 1.0f));
+	}
+
+
+	// Get the verticies of this rigidbody (in world space)
+	vector3 A_v3Min = m_v3MinG;
+	vector3 A_v3Max = m_v3MaxG;
+
+	// Get the verticies of the other rigidbody (in world space)
+	vector3 B_v3Min = a_pOther->m_v3MinG;
+	vector3 B_v3Max = a_pOther->m_v3MaxG;
+
+	// Check if they are colliding against Ax, Ay and Az
+	if (IsThereSeparationOnAxis(a_pOther, Ax))
+		return 1; //return eSATResults::SAT_AX;
+		
+
+	if (IsThereSeparationOnAxis(a_pOther, Ay))
+		return 1; //eSATResults::SAT_AY;
+
+	if (IsThereSeparationOnAxis(a_pOther, Az))
+		return 1; //eSATResults::SAT_AZ;
+
+	// Check if they are colliding against Bx, By and Bz
+	if (IsThereSeparationOnAxis(a_pOther, Bx))
+		return 1; //eSATResults::SAT_BX;
+
+	if (IsThereSeparationOnAxis(a_pOther, By))
+		return 1; //eSATResults::SAT_BY;
+
+	if (IsThereSeparationOnAxis(a_pOther, Bz))
+		return 1; //eSATResults::SAT_BZ;
+
+	// Now check for each cross product
+
+	// Ax cross Bx to Bz
+	if (IsThereSeparationOnAxis(a_pOther, glm::cross(Ax, Bx)))
+		return 1; //eSATResults::SAT_AXxBX;
+
+	if (IsThereSeparationOnAxis(a_pOther, glm::cross(Ax, By)))
+		return 1; //eSATResults::SAT_AXxBY;
+
+	if (IsThereSeparationOnAxis(a_pOther, glm::cross(Ax, Bz)))
+		return 1; //eSATResults::SAT_AXxBZ;
+
+	// Ay cross Bx to Bz
+	if (IsThereSeparationOnAxis(a_pOther, glm::cross(Ay, Bx)))
+		return 1; //eSATResults::SAT_AYxBX;
+
+	if (IsThereSeparationOnAxis(a_pOther, glm::cross(Ay, By)))
+		return 1; //eSATResults::SAT_AYxBY;
+
+	if (IsThereSeparationOnAxis(a_pOther, glm::cross(Ay, Bz)))
+		return 1; //eSATResults::SAT_AYxBZ;
+
+	// Az cross Bx to Bz
+	if (IsThereSeparationOnAxis(a_pOther, glm::cross(Az, Bx)))
+		return 1; //eSATResults::SAT_AZxBX;
+
+	if (IsThereSeparationOnAxis(a_pOther, glm::cross(Az, By)))
+		return 1; //eSATResults::SAT_AZxBY;
+
+	if (IsThereSeparationOnAxis(a_pOther, glm::cross(Az, Bz)))
+		return 1; //eSATResults::SAT_AZxBZ;
 
 	//there is no axis test that separates this two objects
-	return 0;
+	return 0; //eSATResults::SAT_NONE;
 }
+
 bool MyRigidBody::IsColliding(MyRigidBody* const a_pOther)
 {
 	//check if spheres are colliding
 	bool bColliding = true;
-	//bColliding = (glm::distance(GetCenterGlobal(), other->GetCenterGlobal()) < m_fRadius + other->m_fRadius);
+	// bColliding = (glm::distance(GetCenterGlobal(), a_pOther->GetCenterGlobal()) < m_fRadius + a_pOther->m_fRadius);
 	//if they are check the Axis Aligned Bounding Box
 	if (bColliding) //they are colliding with bounding sphere
 	{
@@ -366,4 +441,113 @@ bool MyRigidBody::IsInCollidingArray(MyRigidBody* a_pEntry)
 			return true;
 	}
 	return false;
+}
+
+
+uint MyRigidBody::IsThereSeparationOnAxis(MyRigidBody* const a_pOther, vector3 axis)
+{
+	// If axis isn't an actual axis, return false
+	if (axis.length() == 0.0 || axis == vector3(0.0, 0.0, 0.0))
+	{
+		return 0;
+	}
+
+	// Calculate the 3-dimensional corners of the first rigidbody A
+	vector3 A_v3Corner[8];
+	{
+		// Verticies calculation adapted from the provided MyRigidBody::SetModelMatrix(matrix4 a_m4ModelMatrix);
+
+		//Back square
+		A_v3Corner[0] = m_v3MinL;
+		A_v3Corner[1] = vector3(m_v3MaxL.x, m_v3MinL.y, m_v3MinL.z);
+		A_v3Corner[2] = vector3(m_v3MinL.x, m_v3MaxL.y, m_v3MinL.z);
+		A_v3Corner[3] = vector3(m_v3MaxL.x, m_v3MaxL.y, m_v3MinL.z);
+
+		//Front square
+		A_v3Corner[4] = vector3(m_v3MinL.x, m_v3MinL.y, m_v3MaxL.z);
+		A_v3Corner[5] = vector3(m_v3MaxL.x, m_v3MinL.y, m_v3MaxL.z);
+		A_v3Corner[6] = vector3(m_v3MinL.x, m_v3MaxL.y, m_v3MaxL.z);
+		A_v3Corner[7] = m_v3MaxL;
+
+		//Place them in world space
+		for (uint uIndex = 0; uIndex < 8; ++uIndex)
+		{
+			A_v3Corner[uIndex] = vector3(m_m4ToWorld * vector4(A_v3Corner[uIndex], 1.0f));
+		}
+	}
+
+	// Calculate the 3-dimensional corners of the other rigidbody B
+	vector3 B_v3Corner[8];
+	{
+		// // Verticies calculation adapted from the provided MyRigidBody::SetModelMatrix(matrix4 a_m4ModelMatrix);
+
+		//Back square
+		B_v3Corner[0] = a_pOther->m_v3MinL;
+		B_v3Corner[1] = vector3(a_pOther->m_v3MaxL.x, a_pOther->m_v3MinL.y, a_pOther->m_v3MinL.z);
+		B_v3Corner[2] = vector3(a_pOther->m_v3MinL.x, a_pOther->m_v3MaxL.y, a_pOther->m_v3MinL.z);
+		B_v3Corner[3] = vector3(a_pOther->m_v3MaxL.x, a_pOther->m_v3MaxL.y, a_pOther->m_v3MinL.z);
+
+		//Front square
+		B_v3Corner[4] = vector3(a_pOther->m_v3MinL.x, a_pOther->m_v3MinL.y, a_pOther->m_v3MaxL.z);
+		B_v3Corner[5] = vector3(a_pOther->m_v3MaxL.x, a_pOther->m_v3MinL.y, a_pOther->m_v3MaxL.z);
+		B_v3Corner[6] = vector3(a_pOther->m_v3MinL.x, a_pOther->m_v3MaxL.y, a_pOther->m_v3MaxL.z);
+		B_v3Corner[7] = a_pOther->m_v3MaxL;
+
+		//Place them in world space
+		for (uint uIndex = 0; uIndex < 8; uIndex++)
+		{
+			B_v3Corner[uIndex] = vector3(a_pOther->m_m4ToWorld * vector4(B_v3Corner[uIndex], 1.0f));
+		}
+	}
+
+	// Calculate and compare their projections onto the axis
+	float A_min = 0;
+	float A_max = 0;
+	float B_min = 0;
+	float B_max = 0;
+
+	// Calculate min and max of projections for A
+	for (uint i = 0; i < 8; i++)
+	{
+		float scalerProj = glm::dot(A_v3Corner[i], axis) / glm::length(axis);
+
+		if ((i == 0) || scalerProj < A_min)
+		{
+			A_min = scalerProj;
+		}
+		if ((i == 0) || scalerProj > A_max)
+		{
+			A_max = scalerProj;
+		}
+	}
+
+	// Calculate min and max of projections for A
+	for (uint i = 0; i < 8; i++)
+	{
+		float scalerProj = glm::dot(B_v3Corner[i], axis) / glm::length(axis);
+
+		if ((i == 0) || scalerProj < B_min)
+		{
+			B_min = scalerProj;
+		}
+		if ((i == 0) || scalerProj > B_max)
+		{
+			B_max = scalerProj;
+		}
+	}
+
+	// Check for overlap
+	if ((B_min > A_min && B_min < A_max) ||
+		(B_max > A_min && B_max < A_max) ||
+		(A_min > B_min && A_min < B_max) ||
+		(A_max > B_min && A_max < B_max)
+		)
+	{
+		return 0;
+	}
+	else
+	{
+		// No overlap at all -> there is separation
+		return 1;
+	}
 }

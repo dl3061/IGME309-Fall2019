@@ -1,6 +1,8 @@
 #include "MyRigidBody.h"
 using namespace Simplex;
 //Allocation
+
+
 void MyRigidBody::Init(void)
 {
 	m_pMeshMngr = MeshManager::GetInstance();
@@ -285,17 +287,7 @@ void MyRigidBody::AddToRenderList(void)
 
 uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 {
-	/*
-	Your code goes here instead of this comment;
 
-	For this method, if there is an axis that separates the two objects
-	then the return will be different than 0; 1 for any separating axis
-	is ok if you are not going for the extra credit, if you could not
-	find a separating axis you need to return 0, there is an enum in
-	Simplex that might help you [eSATResults] feel free to use it.
-	(eSATResults::SAT_NONE has a value of 0)
-	*/
-	
 	// Get the axises
 	vector3 Ax, Ay, Az;
 	{

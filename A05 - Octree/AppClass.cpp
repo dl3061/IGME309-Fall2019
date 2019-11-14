@@ -11,10 +11,14 @@ void Application::InitVariables(void)
 	m_pLightMngr->SetPosition(vector3(0.0f, 3.0f, 13.0f), 1); //set the position of first light (0 is reserved for ambient light)
 
 #ifdef DEBUG
-	uint uInstances = 900;
+	uint uInstances = 90;
 #else
 	uint uInstances = 1849;
 #endif
+
+	m_Octree = new MyOctree(3, vector3(0, 0, 0), vector3(35, 35, 35));
+	m_pEntityMngr->m_Octree = m_Octree;
+
 	int nSquare = static_cast<int>(std::sqrt(uInstances));
 	m_uObjects = nSquare * nSquare;
 	uint uIndex = -1;
@@ -29,7 +33,9 @@ void Application::InitVariables(void)
 			m_pEntityMngr->SetModelMatrix(m4Position);
 		}
 	}
+	m_Octree->RegenerateOctree();
 	m_uOctantLevels = 1;
+
 	m_pEntityMngr->Update();
 }
 void Application::Update(void)
@@ -55,7 +61,12 @@ void Application::Display(void)
 	ClearScreen();
 
 	//display octree
-	//m_pRoot->Display();
+	/*
+	if (m_uOctantID == -1)
+		m_pRoot->Display();
+	else
+		m_pRoot->Display(m_uOctantID);
+		*/
 	
 	// draw a skybox
 	m_pMeshMngr->AddSkyboxToRenderList();

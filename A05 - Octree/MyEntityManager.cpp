@@ -174,13 +174,19 @@ void Simplex::MyEntityManager::Update(void)
 	}
 
 	//check collisions
+	
+	//m_Octree->CheckCollisions(2);
+	
 	for (uint i = 0; i < m_uEntityCount - 1; i++)
 	{
 		for (uint j = i + 1; j < m_uEntityCount; j++)
 		{
-			m_mEntityArray[i]->IsColliding(m_mEntityArray[j]);
+			if (m_Octree->AreEntitiesInSameNode(m_mEntityArray[i], m_mEntityArray[j], 1))
+				m_mEntityArray[i]->IsColliding(m_mEntityArray[j]);
 		}
 	}
+	
+	
 }
 void Simplex::MyEntityManager::AddEntity(String a_sFileName, String a_sUniqueID)
 {
@@ -199,6 +205,9 @@ void Simplex::MyEntityManager::AddEntity(String a_sFileName, String a_sUniqueID)
 			++uCount;
 		}
 		tempArray[uCount] = pTemp;
+		// Also add to Octree
+		m_Octree->AddEntity(pTemp);
+
 		//if there was an older array delete
 		if (m_mEntityArray)
 		{

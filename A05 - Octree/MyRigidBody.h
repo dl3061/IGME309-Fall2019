@@ -10,6 +10,8 @@ Date: 2017/06
 namespace Simplex
 {
 
+	
+
 //System Class
 class MyRigidBody
 {
@@ -256,6 +258,8 @@ private:
 	OUTPUT: 0 for colliding, all other first axis that succeeds test
 	*/
 	uint SAT(MyRigidBody* const a_pOther);
+
+	uint MyRigidBody::IsThereSeparationOnAxis(MyRigidBody* const a_pOther, vector3 axis);
 };//class
 
 } //namespace Simplex
