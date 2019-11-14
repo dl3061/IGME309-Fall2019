@@ -32,14 +32,23 @@ public:
 
 
 	/*
+		Performs collision check on all entities at a specified internal depth.
 	*/
 	void CheckCollisions(int a_depth);
 
 
 	/*
+		Regenerates the tree to a new specified depth, or regenerates at the same depth if not specified. 
+		Will recheck all object locations when generating new tree.
 	*/
-	void RegenerateOctree();
+	void RegenerateOctree(int a_depth = -1);
 
+	/*
+		Displays the grid.
+	*/
+	void DisplayGrid();
+
+	void SetMeshManager(MeshManager* a_pMeshMngr);
 
 private:
 	int m_iDepth;
@@ -51,6 +60,8 @@ private:
 
 	uint m_EntityCount;
 	MyEntity** m_pEntityList; // List of entities ptrs under this node
+
+	MeshManager* m_pMeshMngr = nullptr; //Mesh Manager
 
 	int IsPositionInTree(vector3 pos);
 };

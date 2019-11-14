@@ -23,6 +23,16 @@ MyOctree::MyOctree(int depth, vector3 center, vector3 radius)
 Simplex::MyOctree::~MyOctree()
 {
 	delete[] m_pEntityList;
+
+	// Delete children. 
+	if (m_iDepth != 1)
+	{
+		// Each child's destructor will also delete their children.
+		for (int i = 0; i < 8; i++)
+		{
+			delete m_pChildNodes[i];
+		}
+	}
 }
 
 /*
@@ -156,10 +166,20 @@ void Simplex::MyOctree::CheckCollisions(int a_depth)
 	}
 }
 
-void Simplex::MyOctree::RegenerateOctree()
+
+/*
+	
+*/
+void Simplex::MyOctree::RegenerateOctree(int a_depth)
 {
+	// 
 	vector3 radius = m_v3Radius;
 	vector3 center = m_v3Center;
+
+	// If a_depth is specified, change the depth of this tree.
+	if (a_depth > 0)
+		m_iDepth = a_depth;
+
 	int depth = m_iDepth;
 
 	if (depth > 1)
@@ -210,8 +230,9 @@ void Simplex::MyOctree::RegenerateOctree()
 		m_pChildNodes[7] = child_7;
 	}
 
-	if (m_iDepth != 1)
+	if (m_iDepth > 1)
 	{
+		// Get each entity
 		for (int i = 0; i < m_EntityCount; i++)
 		{
 			MyEntity* entity = m_pEntityList[i];
@@ -224,6 +245,109 @@ void Simplex::MyOctree::RegenerateOctree()
 					break;
 				}
 			}
+		}
+
+		// Add mesh manager to each child
+		for (int child = 0; child < 8; child++)
+		{
+			m_pChildNodes[child]->SetMeshManager(m_pMeshMngr);
+		}
+	}
+}
+
+void Simplex::MyOctree::DisplayGrid()
+{
+	// Only have lowest depth display grid.
+	if (m_iDepth > 1)
+	{
+		for (int i = 0; i < 8; i++)
+		{
+			m_pChildNodes[i]->DisplayGrid();
+		}
+	}
+	else
+	{
+		if (m_pMeshMngr != nullptr)
+		{
+			// Horizontal lines
+			m_pMeshMngr->AddLineToRenderList(IDENTITY_M4,
+				vector3(m_v3Center.x - m_v3Radius.x, m_v3Center.y - m_v3Radius.y, m_v3Center.z - m_v3Radius.z),
+				vector3(m_v3Center.x + m_v3Radius.x, m_v3Center.y - m_v3Radius.y, m_v3Center.z - m_v3Radius.z),
+				C_YELLOW, C_YELLOW);
+
+			m_pMeshMngr->AddLineToRenderList(IDENTITY_M4,
+				vector3(m_v3Center.x - m_v3Radius.x, m_v3Center.y - m_v3Radius.y, m_v3Center.z + m_v3Radius.z),
+				vector3(m_v3Center.x + m_v3Radius.x, m_v3Center.y - m_v3Radius.y, m_v3Center.z + m_v3Radius.z),
+				C_YELLOW, C_YELLOW);
+
+			m_pMeshMngr->AddLineToRenderList(IDENTITY_M4,
+				vector3(m_v3Center.x - m_v3Radius.x, m_v3Center.y + m_v3Radius.y, m_v3Center.z - m_v3Radius.z),
+				vector3(m_v3Center.x + m_v3Radius.x, m_v3Center.y + m_v3Radius.y, m_v3Center.z - m_v3Radius.z),
+				C_YELLOW, C_YELLOW);
+
+			m_pMeshMngr->AddLineToRenderList(IDENTITY_M4,
+				vector3(m_v3Center.x - m_v3Radius.x, m_v3Center.y + m_v3Radius.y, m_v3Center.z + m_v3Radius.z),
+				vector3(m_v3Center.x + m_v3Radius.x, m_v3Center.y + m_v3Radius.y, m_v3Center.z + m_v3Radius.z),
+				C_YELLOW, C_YELLOW);
+
+			// Vertical lines
+			m_pMeshMngr->AddLineToRenderList(IDENTITY_M4,
+				vector3(m_v3Center.x - m_v3Radius.x, m_v3Center.y - m_v3Radius.y, m_v3Center.z - m_v3Radius.z),
+				vector3(m_v3Center.x - m_v3Radius.x, m_v3Center.y + m_v3Radius.y, m_v3Center.z - m_v3Radius.z),
+				C_YELLOW, C_YELLOW);
+
+			m_pMeshMngr->AddLineToRenderList(IDENTITY_M4,
+				vector3(m_v3Center.x - m_v3Radius.x, m_v3Center.y - m_v3Radius.y, m_v3Center.z + m_v3Radius.z),
+				vector3(m_v3Center.x - m_v3Radius.x, m_v3Center.y + m_v3Radius.y, m_v3Center.z + m_v3Radius.z),
+				C_YELLOW, C_YELLOW);
+
+			m_pMeshMngr->AddLineToRenderList(IDENTITY_M4,
+				vector3(m_v3Center.x + m_v3Radius.x, m_v3Center.y - m_v3Radius.y, m_v3Center.z - m_v3Radius.z),
+				vector3(m_v3Center.x + m_v3Radius.x, m_v3Center.y + m_v3Radius.y, m_v3Center.z - m_v3Radius.z),
+				C_YELLOW, C_YELLOW);
+
+			m_pMeshMngr->AddLineToRenderList(IDENTITY_M4,
+				vector3(m_v3Center.x + m_v3Radius.x, m_v3Center.y - m_v3Radius.y, m_v3Center.z + m_v3Radius.z),
+				vector3(m_v3Center.x + m_v3Radius.x, m_v3Center.y + m_v3Radius.y, m_v3Center.z + m_v3Radius.z),
+				C_YELLOW, C_YELLOW);
+
+			// Coming at you lines
+			m_pMeshMngr->AddLineToRenderList(IDENTITY_M4,
+				vector3(m_v3Center.x - m_v3Radius.x, m_v3Center.y - m_v3Radius.y, m_v3Center.z - m_v3Radius.z),
+				vector3(m_v3Center.x - m_v3Radius.x, m_v3Center.y - m_v3Radius.y, m_v3Center.z + m_v3Radius.z),
+				C_YELLOW, C_YELLOW);
+
+			m_pMeshMngr->AddLineToRenderList(IDENTITY_M4,
+				vector3(m_v3Center.x - m_v3Radius.x, m_v3Center.y + m_v3Radius.y, m_v3Center.z - m_v3Radius.z),
+				vector3(m_v3Center.x - m_v3Radius.x, m_v3Center.y + m_v3Radius.y, m_v3Center.z + m_v3Radius.z),
+				C_YELLOW, C_YELLOW);
+
+			m_pMeshMngr->AddLineToRenderList(IDENTITY_M4,
+				vector3(m_v3Center.x + m_v3Radius.x, m_v3Center.y - m_v3Radius.y, m_v3Center.z - m_v3Radius.z),
+				vector3(m_v3Center.x + m_v3Radius.x, m_v3Center.y - m_v3Radius.y, m_v3Center.z + m_v3Radius.z),
+				C_YELLOW, C_YELLOW);
+
+			m_pMeshMngr->AddLineToRenderList(IDENTITY_M4,
+				vector3(m_v3Center.x + m_v3Radius.x, m_v3Center.y + m_v3Radius.y, m_v3Center.z - m_v3Radius.z),
+				vector3(m_v3Center.x + m_v3Radius.x, m_v3Center.y + m_v3Radius.y, m_v3Center.z + m_v3Radius.z),
+				C_YELLOW, C_YELLOW);
+
+
+			//m_pMeshMngr->AddGridToRenderList(glm::translate(vector3(m_v3Center.y - m_v3Radius.y, 0.0f, 0.0f)) * glm::rotate(IDENTITY_M4, 1.5708f, AXIS_Y));
+			//m_pMeshMngr->AddGridToRenderList(glm::translate(vector3(m_v3Center.y + m_v3Radius.y, 0.0f, 0.0f)) * glm::rotate(IDENTITY_M4, 1.5708f, AXIS_Y));
+		}
+	}
+}
+
+void Simplex::MyOctree::SetMeshManager(MeshManager* a_pMeshMngr)
+{
+	this->m_pMeshMngr = a_pMeshMngr;
+
+	if (m_iDepth > 1)
+	{
+		for (int i = 0; i < 8; i++)
+		{
+			m_pChildNodes[i]->SetMeshManager(a_pMeshMngr);
 		}
 	}
 }

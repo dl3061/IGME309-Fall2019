@@ -19,6 +19,10 @@ void Application::DrawGUI(void)
 	//m_pMeshMngr->Print("						");
 	m_pMeshMngr->Print("FPS:");
 	m_pMeshMngr->PrintLine(std::to_string(m_pSystem->GetFPS()), C_RED);
+
+	//m_pMeshMngr->Print("						");
+	m_pMeshMngr->Print("Octree Depth:");
+	m_pMeshMngr->PrintLine(std::to_string(m_OctreeDepth), C_RED);
 #pragma endregion
 
 	//Calculate the window size to know how to draw
@@ -38,7 +42,7 @@ void Application::DrawGUI(void)
 			ImGui::TextColored(v4Color, m_sProgrammer.c_str());
 			ImGui::Text("FrameRate: %.2f [FPS] -> %.3f [ms/frame]\n",
 				ImGui::GetIO().Framerate, 1000.0f / ImGui::GetIO().Framerate);
-			ImGui::Text("Levels in Octree: %d\n", m_uOctantLevels);
+			ImGui::Text("Levels in Octree: %d\n", m_OctreeDepth);
 			//ImGui::Text("Octants: %d\n", m_pRoot->GetOctantCount());
 			ImGui::Text("Objects: %d\n", m_uObjects);
 			ImGui::Separator();
@@ -49,11 +53,10 @@ void Application::DrawGUI(void)
 			ImGui::Text("	 F3: Orthographic Y\n");
 			ImGui::Text("	 F4: Orthographic Z\n");
 			ImGui::Separator();
-			ImGui::Text(" PageUp: Increment Octant display\n");
-			ImGui::Text(" PageDw: Decrement Octant display\n");
+			ImGui::Text("    L: Toggle Octant display\n");
 			ImGui::Separator();
-			ImGui::Text("	  -: Increment Octree subdivision\n");
-			ImGui::Text("	  +: Decrement Octree subdivision\n");
+			ImGui::Text("  O/-: Increment Octree subdivision\n");
+			ImGui::Text("  P/+: Decrement Octree subdivision\n");
 			ImGui::Separator();
 			ImGui::TextColored(ImColor(255, 255, 0), "Octree\n");
 		}

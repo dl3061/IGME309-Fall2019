@@ -112,41 +112,40 @@ void Application::ProcessKeyReleased(sf::Event a_event)
 		m_pCameraMngr->SetFPS(bFPSControl);
 		break;
 	case sf::Keyboard::PageUp:
-		++m_uOctantID;
+		//++m_uOctantID;
 		/*
 		if (m_uOctantID >= m_pRoot->GetOctantCount())
 			m_uOctantID = - 1;
 		*/
 		break;
 	case sf::Keyboard::PageDown:
-		--m_uOctantID;
+		//--m_uOctantID;
 		/*
 		if (m_uOctantID >= m_pRoot->GetOctantCount())
 			m_uOctantID = - 1;
 		*/
 		break;
 	case sf::Keyboard::Add:
-		if (m_uOctantLevels < 4)
+	case sf::Keyboard::P:
+		if (m_OctreeDepth < 9)
 		{
-			m_pEntityMngr->ClearDimensionSetAll();
-			++m_uOctantLevels;
-			/*
-			SafeDelete(m_pRoot);
-			m_pRoot = new MyOctant(m_uOctantLevels, 5);
-			*/
+			m_OctreeDepth += 1;
+			m_Octree->RegenerateOctree(m_OctreeDepth);
 		}
 		break;
 	case sf::Keyboard::Subtract:
-		if (m_uOctantLevels > 0)
+	case sf::Keyboard::O:
+		if (m_OctreeDepth > 1)
 		{
-			m_pEntityMngr->ClearDimensionSetAll();
-			--m_uOctantLevels;
-			/*
-			SafeDelete(m_pRoot);
-			m_pRoot = new MyOctant(m_uOctantLevels, 5);
-			*/
+			m_OctreeDepth -= 1;
+			m_Octree->RegenerateOctree(m_OctreeDepth);
 		}
 		break;
+	case sf::Keyboard::L:
+		if (m_OctreeDrawLines > 0)
+			m_OctreeDrawLines = 0;
+		else
+			m_OctreeDrawLines = 1;
 	case sf::Keyboard::LShift:
 	case sf::Keyboard::RShift:
 		m_bModifier = false;

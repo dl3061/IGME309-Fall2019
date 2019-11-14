@@ -16,7 +16,10 @@ void Application::InitVariables(void)
 	uint uInstances = 1849;
 #endif
 
-	m_Octree = new MyOctree(3, vector3(0, 0, 0), vector3(35, 35, 35));
+	m_OctreeDepth = 3;
+	m_Octree = new MyOctree(m_OctreeDepth, ZERO_V3, vector3(35.0f, 35.0f, 35.0f));
+	m_Octree->SetMeshManager(m_pMeshMngr);
+
 	m_pEntityMngr->m_Octree = m_Octree;
 
 	int nSquare = static_cast<int>(std::sqrt(uInstances));
@@ -33,8 +36,6 @@ void Application::InitVariables(void)
 			m_pEntityMngr->SetModelMatrix(m4Position);
 		}
 	}
-	m_uOctantLevels = 1;
-
 	m_pEntityMngr->Update();
 }
 void Application::Update(void)
@@ -48,7 +49,7 @@ void Application::Update(void)
 	//Is the first person camera active?
 	CameraRotation();
 	
-	// Update OctTree
+	// Update OctTree every second
 	static uint nClock = m_pSystem->GenClock();
 	static bool bStarted = false;
 	if (m_pSystem->IsTimerDone(nClock) || !bStarted)
@@ -57,6 +58,9 @@ void Application::Update(void)
 		m_Octree->RegenerateOctree();
 		m_pSystem->StartTimerOnClock(15.0, nClock);
 	}
+
+	if (m_OctreeDrawLines)
+		m_Octree->DisplayGrid();
 
 
 	//Update Entity Manager
@@ -97,4 +101,11 @@ void Application::Release(void)
 {
 	//release GUI
 	ShutdownGUI();
+
+	// Safe delete
+	if (m_Octree != nullptr)
+	{
+		delete m_Octree;
+		m_Octree = nullptr;
+	}
 }
