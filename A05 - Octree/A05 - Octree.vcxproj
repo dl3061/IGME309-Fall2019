@@ -13,7 +13,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{44D2C07B-798D-461B-9019-DFB240593888}</ProjectGuid>
     <RootNamespace>A05 - Octree</RootNamespace>
-    <ProjectName>A05 - Octree</ProjectName>
+    <ProjectName>Exam2</ProjectName>
     <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -111,6 +111,7 @@ xcopy "$(SolutionDir)include\Simplex\Shaders" "$(SolutionDir)_Binary\Shaders" /y
     <ClCompile Include="MyEntityManager.cpp" />
     <ClCompile Include="MyOctree.cpp" />
     <ClCompile Include="MyRigidBody.cpp" />
+    <ClCompile Include="MySolver.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\imgui\imconfig.h" />
@@ -126,6 +127,7 @@ xcopy "$(SolutionDir)include\Simplex\Shaders" "$(SolutionDir)_Binary\Shaders" /y
     <ClInclude Include="MyEntityManager.h" />
     <ClInclude Include="MyOctree.h" />
     <ClInclude Include="MyRigidBody.h" />
+    <ClInclude Include="MySolver.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\res\BTO.rc" />

@@ -146,6 +146,19 @@ void Application::ProcessKeyReleased(sf::Event a_event)
 			m_OctreeDrawLines = 0;
 		else
 			m_OctreeDrawLines = 1;
+		break;
+	case sf::Keyboard::U:
+		if (m_CubeLimits > 2)
+		{
+			m_CubeLimits = m_CubeLimits - 1;
+		}
+		break;
+	case sf::Keyboard::I:
+		if (m_CubeLimits < 100)
+		{
+			m_CubeLimits = m_CubeLimits + 1;
+		}
+		break;
 	case sf::Keyboard::LShift:
 	case sf::Keyboard::RShift:
 		m_bModifier = false;

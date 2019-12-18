@@ -1,4 +1,6 @@
 #include "MyRigidBody.h"
+#include "MyEntity.h"
+
 using namespace Simplex;
 //Allocation
 void MyRigidBody::Init(void)
@@ -82,6 +84,7 @@ vector3 MyRigidBody::GetMinGlobal(void) { return m_v3MinG; }
 vector3 MyRigidBody::GetMaxGlobal(void) { return m_v3MaxG; }
 vector3 MyRigidBody::GetHalfWidth(void) { return m_v3HalfWidth; }
 matrix4 MyRigidBody::GetModelMatrix(void) { return m_m4ToWorld; }
+uint MyRigidBody::GetCollidingCount(void) { return m_nCollidingCount; }
 void MyRigidBody::SetModelMatrix(matrix4 a_m4ModelMatrix)
 {
 	//to save some calculations if the model matrix is the same there is nothing to do here
@@ -131,6 +134,14 @@ void MyRigidBody::SetModelMatrix(matrix4 a_m4ModelMatrix)
 
 	//we calculate the distance between min and max vectors
 	m_v3ARBBSize = m_v3MaxG - m_v3MinG;
+}
+void* Simplex::MyRigidBody::GetEntity(void)
+{
+	return m_pEntity;
+}
+void Simplex::MyRigidBody::SetEntity(void* a_pEntity)
+{
+	m_pEntity = a_pEntity;
 }
 //The big 3
 MyRigidBody::MyRigidBody(std::vector<vector3> a_pointList)
@@ -275,6 +286,49 @@ void MyRigidBody::ClearCollidingList(void)
 		m_CollidingArray = nullptr;
 	}
 }
+
+void Simplex::MyRigidBody::ResolveCollisionList(void)
+{
+	//if there are no dimensions return
+	if (m_nCollidingCount == 0)
+		return;
+
+	//we look one by one if its the one wanted
+	for (uint i = 0; i < m_nCollidingCount; i++)
+	{
+		
+	}
+
+	return;
+}
+
+MyRigidBody** Simplex::MyRigidBody::GetCollisionList(void)
+{
+	// Returns the collision list
+	return m_CollidingArray;
+}
+
+/*
+uint8_t Simplex::MyRigidBody::HasCollisionWith(MyRigidBody* other)
+{
+	//if there are no dimensions return
+	if (m_nCollidingCount == 0)
+		return 0;
+
+	//we look one by one if its the one wanted
+	for (uint i = 0; i < m_nCollidingCount; i++)
+	{
+		if (m_CollidingArray[i] == other)
+		{
+			//if it is, return true
+			return 1;
+		}
+	}
+
+	return 0;
+}
+*/
+
 uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 {
 	// Get the axises
@@ -370,7 +424,7 @@ bool MyRigidBody::IsColliding(MyRigidBody* const a_pOther)
 {
 	//check if spheres are colliding
 	bool bColliding = true;
-	// bColliding = (glm::distance(GetCenterGlobal(), a_pOther->GetCenterGlobal()) < m_fRadius + a_pOther->m_fRadius);
+	bColliding = (glm::distance(GetCenterGlobal(), a_pOther->GetCenterGlobal()) < m_fRadius + a_pOther->m_fRadius);
 	//if they are check the Axis Aligned Bounding Box
 	if (bColliding) //they are colliding with bounding sphere
 	{

@@ -6,6 +6,7 @@ Date: 2017/06
 #define __MYRIGIDBODY_H_
 
 #include "Simplex\Mesh\Model.h"
+// #include "MyEntity.h"
 
 namespace Simplex
 {
@@ -43,6 +44,8 @@ class MyRigidBody
 
 	uint m_nCollidingCount = 0; //size of the colliding set
 	PRigidBody* m_CollidingArray = nullptr; //array of rigid bodies this one is colliding with
+
+	void* m_pEntity;
 
 public:
 	/*
@@ -89,6 +92,16 @@ public:
 	OUTPUT: ---
 	*/
 	void ClearCollidingList(void);
+
+	void ResolveCollisionList(void);
+
+	// Returns the collision list
+	MyRigidBody** GetCollisionList(void);
+
+	// Returns the collision list size
+	uint GetCollidingCount(void);
+
+	// uint8_t HasCollisionWith(MyRigidBody* other);
 
 	/*
 	USAGE: Mark collision with the incoming Rigid Body
@@ -231,6 +244,11 @@ public:
 	Output: ---
 	*/
 	void SetModelMatrix(matrix4 a_m4ModelMatrix);
+
+	// I'm having a frusturuating time getting MyEntity to be recognized -> just set as void* for now and typecast later
+	void* GetEntity(void);
+	void SetEntity(void* a_pEntity);
+
 #pragma endregion
 	/*
 	USAGE: Checks if the input is in the colliding array

@@ -149,9 +149,6 @@ void Simplex::MyOctree::CheckCollisions(int a_depth)
 		{
 			for (uint j = i + 1; j < m_EntityCount; j++)
 			{
-				vector3 pos1 = m_pEntityList[i]->GetRigidBody()->GetCenterGlobal();
-				vector3 pos2 = m_pEntityList[j]->GetRigidBody()->GetCenterGlobal();
-
 				m_pEntityList[i]->IsColliding(m_pEntityList[j]);
 			}
 		}

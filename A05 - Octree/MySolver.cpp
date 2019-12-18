@@ -6,8 +6,8 @@ void MySolver::Init(void)
 	m_v3Acceleration = ZERO_V3;
 	m_v3Position = ZERO_V3;
 	m_v3Velocity = ZERO_V3;
-	m_fMass = 1.0f;
 	m_v3Gravity = vector3(0.0f, -0.035f, 0.0f);
+	m_fMass = 1.0f;
 }
 void MySolver::Swap(MySolver& other)
 {
@@ -98,19 +98,21 @@ void MySolver::Update(void)
 
 	m_v3Velocity += m_v3Acceleration;
 	
-	float fMaxVelocity = 5.0f;
-	m_v3Velocity = CalculateMaxVelocity(m_v3Velocity, fMaxVelocity);
+	//float fMaxVelocity = 5.0f;
+	//m_v3Velocity = CalculateMaxVelocity(m_v3Velocity, fMaxVelocity);
 
-	ApplyFriction(0.1f);
-	m_v3Velocity = RoundSmallVelocity(m_v3Velocity, 0.028f);
+	// ApplyFriction(0.1f);
+	//m_v3Velocity = RoundSmallVelocity(m_v3Velocity, 0.028f);
 
 	m_v3Position += m_v3Velocity;
-			
+		
+	/*
 	if (m_v3Position.y <= 0)
 	{
 		m_v3Position.y = 0;
 		m_v3Velocity.y = 0;
 	}
+	*/
 
 	m_v3Acceleration = ZERO_V3;
 }

@@ -23,6 +23,10 @@ class Application
 	uint m_OctreeDepth = 0; //Number of levels in the octree
 	uint m_uObjects = 0; //Number of objects in the scene
 	uint m_OctreeDrawLines = 0;
+	float m_CubeLimits = 10.0f;
+	float m_TotalMomentum = 0.0f;
+	float m_TotalKE = 0.0f;
+
 private:
 	String m_sProgrammer = "David Lin - dl3061@rit.edu"; //programmer
 

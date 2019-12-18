@@ -63,6 +63,9 @@ public:
 	*/
 	vector3 GetPosition(void);
 
+	void SetGravity(vector3 a_v3Gravity);
+	vector3 GetGravity(void);
+
 	/*
 	USAGE: Sets the Size of the solver
 	ARGUMENTS: vector3 a_v3Size -> position to set
@@ -88,9 +91,6 @@ public:
 	OUTPUT: velocity of the solver
 	*/
 	vector3 GetVelocity(void);
-
-	void SetGravity(vector3 a_v3Gravity);
-	vector3 GetGravity(void);
 
 	/*
 	USAGE: Sets the mass of the solver

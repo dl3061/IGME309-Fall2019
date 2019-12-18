@@ -6,6 +6,7 @@ Date: 2017/07
 #define __MYENTITY_H_
 
 #include "MyRigidBody.h"
+#include "MySolver.h"
 
 namespace Simplex
 {
@@ -27,6 +28,17 @@ class MyEntity
 	MeshManager* m_pMeshMngr = nullptr; //For rendering shapes
 
 	static std::map<String, MyEntity*> m_IDMap; //a map of the unique ID's
+
+	bool m_bUsePhysicsSolver = false; //Indicates if we will use a physics solver 
+
+	MySolver* m_pSolver = nullptr; //Physics MySolver
+	SystemSingleton* m_pSystem = nullptr; //Singleton of the system
+	uint m_nClock;
+	bool m_bClockStarted; 
+	float m_clockElapsedTime;
+
+	bool m_justResolvedCollision;
+
 
 public:
 	/*
@@ -90,6 +102,9 @@ public:
 	ARGUMENTS: ---
 	OUTPUT: initialized?
 	*/
+
+	void SetSystem(SystemSingleton* a_pSystem);
+
 	bool IsInitialized(void);
 	/*
 	USAGE: Adds the entity to the render list
@@ -172,6 +187,20 @@ public:
 	*/
 	void SortDimensions(void);
 
+	MySolver* GetSolver(void);
+
+	void SetPosition(vector3 a_v3Position);
+	vector3 GetPosition(void);
+	void SetVelocity(vector3 a_v3Velocity);
+	vector3 GetVelocity(void);
+	void SetMass(float a_fMass);
+	float GetMass(void);
+	void Update(void);
+	void UsePhysicsSolver(bool a_bUse = true);
+	void ResolveCollision(MyEntity* a_pOther);
+	void ApplyForce(vector3 a_v3Force);
+	bool GetJustResolvedCollision(void);
+	void SetJustResolvedCollision(bool a_justResolvedColision);
 private:
 	/*
 	Usage: Deallocates member fields

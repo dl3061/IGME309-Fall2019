@@ -1,7 +1,9 @@
 #include "MyEntity.h"
+#include "MyRigidBody.h"
 using namespace Simplex;
 std::map<String, MyEntity*> MyEntity::m_IDMap;
 //  Accessors
+Simplex::MySolver* Simplex::MyEntity::GetSolver(void) { return m_pSolver; }
 matrix4 Simplex::MyEntity::GetModelMatrix(void){ return m_m4ToWorld; }
 void Simplex::MyEntity::SetModelMatrix(matrix4 a_m4ToWorld)
 {
@@ -11,12 +13,53 @@ void Simplex::MyEntity::SetModelMatrix(matrix4 a_m4ToWorld)
 	m_m4ToWorld = a_m4ToWorld;
 	m_pModel->SetModelMatrix(m_m4ToWorld);
 	m_pRigidBody->SetModelMatrix(m_m4ToWorld);
+
+	//experimental way of calculating a matrix components
+	glm::vec3 scale;
+	glm::quat rotation;
+	glm::vec3 translation;
+	glm::vec3 skew;
+	glm::vec4 perspective;
+	glm::decompose(m_m4ToWorld, scale, rotation, translation, skew, perspective);
+
+	m_pSolver->SetPosition(translation);
+	m_pSolver->SetSize(scale);
+
+	//m_pSolver->SetPosition(vector3(m_m4ToWorld[3]));
 }
 Model* Simplex::MyEntity::GetModel(void){return m_pModel;}
 MyRigidBody* Simplex::MyEntity::GetRigidBody(void){	return m_pRigidBody; }
+void Simplex::MyEntity::SetSystem(SystemSingleton* a_pSystem)
+{
+	m_pSystem = a_pSystem;
+}
 bool Simplex::MyEntity::IsInitialized(void){ return m_bInMemory; }
 String Simplex::MyEntity::GetUniqueID(void) { return m_sUniqueID; }
 void Simplex::MyEntity::SetAxisVisible(bool a_bSetAxis) { m_bSetAxis = a_bSetAxis; }
+// Solver
+void Simplex::MyEntity::SetPosition(vector3 a_v3Position) { if (m_pSolver) m_pSolver->SetPosition(a_v3Position); }
+Simplex::vector3 Simplex::MyEntity::GetPosition(void)
+{
+	if (m_pSolver != nullptr)
+		return m_pSolver->GetPosition();
+	return vector3();
+}
+
+void Simplex::MyEntity::SetVelocity(vector3 a_v3Velocity) { if (m_pSolver) m_pSolver->SetVelocity(a_v3Velocity); }
+Simplex::vector3 Simplex::MyEntity::GetVelocity(void)
+{
+	if (m_pSolver != nullptr)
+		return m_pSolver->GetVelocity();
+	return vector3();
+}
+
+void Simplex::MyEntity::SetMass(float a_fMass) { if (m_pSolver) m_pSolver->SetMass(a_fMass); }
+float Simplex::MyEntity::GetMass(void)
+{
+	if (m_pSolver != nullptr)
+		return m_pSolver->GetMass();
+	return 1.0f;
+}
 //  MyEntity
 void Simplex::MyEntity::Init(void)
 {
@@ -29,6 +72,7 @@ void Simplex::MyEntity::Init(void)
 	m_m4ToWorld = IDENTITY_M4;
 	m_sUniqueID = "";
 	m_nDimensionCount = 0;
+	m_pSolver = nullptr;
 }
 void Simplex::MyEntity::Swap(MyEntity& other)
 {
@@ -42,6 +86,7 @@ void Simplex::MyEntity::Swap(MyEntity& other)
 	std::swap(m_bSetAxis, other.m_bSetAxis);
 	std::swap(m_nDimensionCount, other.m_nDimensionCount);
 	std::swap(m_DimensionArray, other.m_DimensionArray);
+	std::swap(m_pSolver, other.m_pSolver);
 }
 void Simplex::MyEntity::Release(void)
 {
@@ -55,6 +100,7 @@ void Simplex::MyEntity::Release(void)
 		m_DimensionArray = nullptr;
 	}
 	SafeDelete(m_pRigidBody);
+	SafeDelete(m_pSolver);
 	m_IDMap.erase(m_sUniqueID);
 }
 //The big 3
@@ -70,8 +116,12 @@ Simplex::MyEntity::MyEntity(String a_sFileName, String a_sUniqueID)
 		m_sUniqueID = a_sUniqueID;
 		m_IDMap[a_sUniqueID] = this;
 		m_pRigidBody = new MyRigidBody(m_pModel->GetVertexList()); //generate a rigid body
+		m_pRigidBody->SetEntity(this);
 		m_bInMemory = true; //mark this entity as viable
 	}
+	m_pSolver = new MySolver();
+	m_justResolvedCollision = false;
+	m_bClockStarted = false;
 }
 Simplex::MyEntity::MyEntity(MyEntity const& other)
 {
@@ -79,13 +129,16 @@ Simplex::MyEntity::MyEntity(MyEntity const& other)
 	m_pModel = other.m_pModel;
 	//generate a new rigid body we do not share the same rigid body as we do the model
 	m_pRigidBody = new MyRigidBody(m_pModel->GetVertexList()); 
+	m_pRigidBody->SetEntity(this);
 	m_m4ToWorld = other.m_m4ToWorld;
 	m_pMeshMngr = other.m_pMeshMngr;
 	m_sUniqueID = other.m_sUniqueID;
 	m_bSetAxis = other.m_bSetAxis;
 	m_nDimensionCount = other.m_nDimensionCount;
 	m_DimensionArray = other.m_DimensionArray;
-
+	m_pSolver = new MySolver(*other.m_pSolver);
+	m_justResolvedCollision = other.m_justResolvedCollision;
+	m_bClockStarted = other.m_bClockStarted;
 }
 MyEntity& Simplex::MyEntity::operator=(MyEntity const& other)
 {
@@ -253,4 +306,60 @@ void Simplex::MyEntity::ClearCollisionList(void)
 void Simplex::MyEntity::SortDimensions(void)
 {
 	std::sort(m_DimensionArray, m_DimensionArray + m_nDimensionCount);
+}
+void Simplex::MyEntity::ApplyForce(vector3 a_v3Force)
+{
+	m_pSolver->ApplyForce(a_v3Force);
+}
+bool Simplex::MyEntity::GetJustResolvedCollision(void)
+{
+	return m_justResolvedCollision;
+}
+void Simplex::MyEntity::SetJustResolvedCollision(bool a_justResolvedColision)
+{
+	m_justResolvedCollision = a_justResolvedColision;
+}
+void Simplex::MyEntity::Update(void)
+{
+	if (m_bUsePhysicsSolver)
+	{
+		m_pSolver->Update();
+		SetModelMatrix(glm::translate(m_pSolver->GetPosition()) * glm::scale(m_pSolver->GetSize()));
+	}
+
+	if (m_justResolvedCollision && m_pSystem != nullptr)
+	{
+		// First time collsion
+		if (0 == m_nClock && m_pSystem != nullptr)
+		{
+			m_nClock = m_pSystem->GenClock();
+		}
+
+		if (!m_bClockStarted)
+		{
+			m_bClockStarted = true;
+			m_clockElapsedTime = 0;
+			// m_pSystem->StartTimerOnClock(.3, m_nClock);
+		} 
+		else 
+		{
+			m_clockElapsedTime += m_pSystem->GetDeltaTime(m_nClock);
+			if (m_clockElapsedTime > 0.05)
+			{
+				m_justResolvedCollision = false;
+				m_bClockStarted = false;
+			}
+		}
+	}
+}
+void Simplex::MyEntity::ResolveCollision(MyEntity* a_pOther)
+{
+	if (m_bUsePhysicsSolver)
+	{
+		m_pSolver->ResolveCollision(a_pOther->GetSolver());
+	}
+}
+void Simplex::MyEntity::UsePhysicsSolver(bool a_bUse)
+{
+	m_bUsePhysicsSolver = a_bUse;
 }
